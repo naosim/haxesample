@@ -1,4 +1,6 @@
-(function (console) { "use strict";
+(function (console, $hx_exports) { "use strict";
+$hx_exports.model = $hx_exports.model || {};
+$hx_exports.model.core = $hx_exports.model.core || {};
 function $extend(from, fields) {
 	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
 	for (var name in fields) proto[name] = fields[name];
@@ -30,7 +32,7 @@ model_core_Step.__name__ = true;
 model_core_Step.prototype = {
 	__class__: model_core_Step
 };
-var model_core_Collision = function(shape,status,pos) {
+var model_core_Collision = $hx_exports.model.core.Collision = function(shape,status,pos) {
 	if(pos != null) this.pos = pos; else this.pos = model_core_Position.zero();
 	this.shape = shape;
 	this.status = status;
@@ -61,7 +63,7 @@ Player.__super__ = model_core_Collision;
 Player.prototype = $extend(model_core_Collision.prototype,{
 	__class__: Player
 });
-var GameStepCore = function() {
+var GameStepCore = $hx_exports.GameStepCore = function() {
 	this.enemies = [];
 	this.items = [];
 	this.friends = [];
@@ -378,7 +380,7 @@ model_core_HitPoint.prototype = {
 	}
 	,__class__: model_core_HitPoint
 };
-var model_core_Position = function() {
+var model_core_Position = $hx_exports.model.core.Position = function() {
 	this.y = 0;
 	this.x = 0;
 };
@@ -421,4 +423,4 @@ var Class = { __name__ : ["Class"]};
 var Enum = { };
 js_Boot.__toStr = {}.toString;
 HelloWorld.main();
-})(typeof console != "undefined" ? console : {log:function(){}});
+})(typeof console != "undefined" ? console : {log:function(){}}, typeof window != "undefined" ? window : exports);

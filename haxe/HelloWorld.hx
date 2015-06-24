@@ -35,6 +35,7 @@ class Player extends Collision {
   var score = 0;
 }
 
+@:expose
 class GameStepCore implements Step {
   private var friends: Array<Collision> = [];
   private var items: Array<Collision> = [];

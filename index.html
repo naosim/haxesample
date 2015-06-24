@@ -1,3 +1,52 @@
 <!DOCTYPE html>
 <meta charset="utf-8" />
+<body></body>
 <script src="js/main.js"></script>
+<script src="js/enchant.js-builds-0.8.2-b/build/enchant.js"></script>
+<script>
+var gameCore = new GameStepCore();
+var player = model.core.Collision.circle({ r : 10, hp : 100, ap : 1, pos : model.core.Position.zero()});
+gameCore.addFriend(player);
+var shot = model.core.Collision.circle({ r : 1, hp : 1, ap : 5, pos : model.core.Position.zero()});
+gameCore.addItem(shot);
+var enemy = model.core.Collision.circle({ r : 10, hp : 20, ap : 1, pos : model.core.Position.zero()});
+gameCore.addEnemy(enemy);
+console.log("shot",{ fileName : "HelloWorld.hx", lineNumber : 17, className : "HelloWorld", methodName : "main", customParams : [shot.isDead(),shot.status.hitPoint.value]});
+console.log("enemy",{ fileName : "HelloWorld.hx", lineNumber : 18, className : "HelloWorld", methodName : "main", customParams : [enemy.isDead(),enemy.status.hitPoint.value]});
+enemy.pos.x = 10;
+enemy.pos.x = 10;
+enemy.eachAttacked(shot);
+console.log("shot",{ fileName : "HelloWorld.hx", lineNumber : 24, className : "HelloWorld", methodName : "main", customParams : [shot.isDead(),shot.status.hitPoint.value]});
+console.log("enemy",{ fileName : "HelloWorld.hx", lineNumber : 25, className : "HelloWorld", methodName : "main", customParams : [enemy.isDead(),enemy.status.hitPoint.value]});
+// console.log(model.core.CollisionHitTest.hitTest(shot,enemy),{ fileName : "HelloWorld.hx", lineNumber : 27, className : "HelloWorld", methodName : "main"});
+
+
+
+
+
+
+
+
+  var chara1 = "js/enchant.js-builds-0.8.2-b/images/chara1.png"
+    enchant(); // initialize
+    var game = new Core(320, 320); // game stage
+    game.preload(chara1); // preload image
+    game.fps = 20;
+
+    game.onload = function(){
+        var bear = new Sprite(32, 32);
+        bear.player = player;
+        bear.image = game.assets[chara1];
+        game.rootScene.addChild(bear);
+        bear.addEventListener('enterframe', function(){
+          bear.x = player.pos.x;
+          bear.x = player.pos.y;
+        });
+
+        game.rootScene.addEventListener('enterframe', function(){
+          gameCore.step();
+        });
+    };
+
+    game.start(); // start your game!
+</script>

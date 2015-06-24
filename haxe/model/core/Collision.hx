@@ -1,6 +1,8 @@
 package model.core;
 
 import model.core.shape.*;
+
+@:expose
 class Collision implements Step {
   public var pos(default, null): Position;// 画面に対する相対位置
   public var shape(default, null): Shape;
