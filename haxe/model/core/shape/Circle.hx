@@ -1,4 +1,5 @@
 package model.core.shape;
+@:expose
 class Circle implements Shape {
   public var radius(default, null): Float;
   public var pos(get, null): Position;

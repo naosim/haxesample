@@ -1,11 +1,14 @@
-import model.core.shape.Circle;
+import model.core.shape.*;
 import model.core.*;
 
-class HelloWorld {
+@:expose
+class Main {
+  public static var gameCore: GameStepCore;
+  public static var player: Player;
   static public function main() {
-    var gameCore = new GameStepCore();
+    gameCore = new GameStepCore();
 
-    var player = Collision.circle({r: 10, hp: 100, ap: 1, pos: Position.zero()});
+    player = Player.circle({r: 10, hp: 100, ap: 1, pos: Position.zero()});
     gameCore.addFriend(player);
 
     var shot = Collision.circle({r: 1, hp: 1, ap: 5, pos: Position.zero()});
@@ -28,4 +31,6 @@ class HelloWorld {
 
     gameCore.step();
   }
+
+
 }
