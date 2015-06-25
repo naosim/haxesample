@@ -25,6 +25,12 @@ class Player extends Collision {
     pos.x = pos.x - speed;
   }
 
+  public function shot() {
+    var pos = Position.zero();
+    pos.y = -3;
+    StepablePosition.linear(pos);
+  }
+
   public static function circle(params: {r: Int, hp: Int, ap: Int, pos: Position}): Player {
     return new Player(new Circle(params.r), new CollisionStatus(new HitPoint(params.hp), params.ap), params.pos);
   }

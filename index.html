@@ -11,6 +11,10 @@
     game.preload(chara1); // preload image
     game.fps = 30;
 
+    // スペースキーをaボタンにバインド
+    game.keybind( ' '.charCodeAt(0), 'a' );
+
+
     game.onload = function(){
         var bear = new Sprite(32, 32);
         bear.player = Main.player;
@@ -25,6 +29,11 @@
           if (game.input.down) bear.player.down();
           if (game.input.right) bear.player.right();
           if (game.input.left) bear.player.left();
+        });
+
+        game.addEventListener( 'abuttondown', function(){
+          // 「a」ボタンを押した時のイベント処理
+          console.log("a")
         });
 
         game.rootScene.addEventListener('enterframe', function(){

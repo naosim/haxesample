@@ -28,36 +28,102 @@ HxOverrides.remove = function(a,obj) {
 	a.splice(i,1);
 	return true;
 };
+var model_core_EachHitCollision = function() { };
+model_core_EachHitCollision.__name__ = true;
+model_core_EachHitCollision.prototype = {
+	__class__: model_core_EachHitCollision
+};
+var model_domain_SimpleCollisions = function() {
+	this.enemyShots = [];
+	this.enemies = [];
+	this.shots = [];
+	this.items = [];
+	this.players = [];
+	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
+};
+model_domain_SimpleCollisions.__name__ = true;
+model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
+model_domain_SimpleCollisions.prototype = {
+	addPlayer: function(c) {
+		this.players.push(c);
+	}
+	,addItem: function(c) {
+		this.items.push(c);
+	}
+	,addShot: function(c) {
+		this.shots.push(c);
+	}
+	,addEnemy: function(c) {
+		this.enemies.push(c);
+	}
+	,addEnemyShot: function(c) {
+		this.enemyShots.push(c);
+	}
+	,eachHitCollisionPair: function(callback) {
+		this.eachHitCollisionPairWithList(this.players,this.items,callback);
+		this.eachHitCollisionPairWithList(this.players,this.enemies,callback);
+		this.eachHitCollisionPairWithList(this.players,this.enemyShots,callback);
+		this.eachHitCollisionPairWithList(this.shots,this.enemies,callback);
+	}
+	,eachHitCollisionPairWithList: function(ary1,ary2,callback) {
+		var _g = 0;
+		while(_g < ary1.length) {
+			var c1 = ary1[_g];
+			++_g;
+			var _g1 = 0;
+			while(_g1 < ary2.length) {
+				var c2 = ary2[_g1];
+				++_g1;
+				callback(c1,c2);
+			}
+		}
+	}
+	,eachCollision: function(callback) {
+		var _g = 0;
+		var _g1 = this.all;
+		while(_g < _g1.length) {
+			var list = _g1[_g];
+			++_g;
+			var _g2 = 0;
+			while(_g2 < list.length) {
+				var c = list[_g2];
+				++_g2;
+				callback(c);
+			}
+		}
+	}
+	,remove: function(ary) {
+		var _g = 0;
+		while(_g < ary.length) {
+			var c = ary[_g];
+			++_g;
+			var _g1 = 0;
+			var _g2 = this.all;
+			while(_g1 < _g2.length) {
+				var list = _g2[_g1];
+				++_g1;
+				HxOverrides.remove(list,c);
+			}
+		}
+	}
+	,__class__: model_domain_SimpleCollisions
+};
 var Main = $hx_exports.Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	Main.gameCore = new model_core_GameStepCore();
+	Main.gameCore = new model_core_GameStepCore(Main.collisions);
 	Main.player = model_core_Player.circle({ r : 10, hp : 100, ap : 1, pos : model_core_Position.zero()});
-	Main.gameCore.addFriend(Main.player);
+	Main.collisions.addPlayer(Main.player);
 	var shot = model_core_Collision.circle({ r : 1, hp : 1, ap : 5, pos : model_core_Position.zero()});
-	Main.gameCore.addItem(shot);
+	Main.collisions.addItem(shot);
 	var enemy = model_core_Collision.circle({ r : 10, hp : 20, ap : 1, pos : model_core_Position.zero()});
-	Main.gameCore.addEnemy(enemy);
-	haxe_Log.trace("shot",{ fileName : "Main.hx", lineNumber : 20, className : "Main", methodName : "main", customParams : [shot.isDead(),shot.status.hitPoint.value]});
-	haxe_Log.trace("enemy",{ fileName : "Main.hx", lineNumber : 21, className : "Main", methodName : "main", customParams : [enemy.isDead(),enemy.status.hitPoint.value]});
-	enemy.pos.x = 10;
-	enemy.pos.x = 10;
-	enemy.eachAttacked(shot);
-	haxe_Log.trace("shot",{ fileName : "Main.hx", lineNumber : 27, className : "Main", methodName : "main", customParams : [shot.isDead(),shot.status.hitPoint.value]});
-	haxe_Log.trace("enemy",{ fileName : "Main.hx", lineNumber : 28, className : "Main", methodName : "main", customParams : [enemy.isDead(),enemy.status.hitPoint.value]});
-	haxe_Log.trace(model_core_CollisionHitTest.hitTest(shot,enemy),{ fileName : "Main.hx", lineNumber : 30, className : "Main", methodName : "main"});
-	Main.gameCore.step();
+	Main.collisions.addEnemy(enemy);
 };
 Math.__name__ = true;
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
-};
-var haxe_Log = function() { };
-haxe_Log.__name__ = true;
-haxe_Log.trace = function(v,infos) {
-	js_Boot.__trace(v,infos);
 };
 var js__$Boot_HaxeError = function(val) {
 	Error.call(this);
@@ -72,25 +138,6 @@ js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
 });
 var js_Boot = function() { };
 js_Boot.__name__ = true;
-js_Boot.__unhtml = function(s) {
-	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
-};
-js_Boot.__trace = function(v,i) {
-	var msg;
-	if(i != null) msg = i.fileName + ":" + i.lineNumber + ": "; else msg = "";
-	msg += js_Boot.__string_rec(v,"");
-	if(i != null && i.customParams != null) {
-		var _g = 0;
-		var _g1 = i.customParams;
-		while(_g < _g1.length) {
-			var v1 = _g1[_g];
-			++_g;
-			msg += "," + js_Boot.__string_rec(v1,"");
-		}
-	}
-	var d;
-	if(typeof(document) != "undefined" && (d = document.getElementById("haxe:trace")) != null) d.innerHTML += js_Boot.__unhtml(msg) + "<br/>"; else if(typeof console != "undefined" && console.log != null) console.log(msg);
-};
 js_Boot.getClass = function(o) {
 	if((o instanceof Array) && o.__enum__ == null) return Array; else {
 		var cl = o.__class__;
@@ -258,10 +305,7 @@ var model_core_CollisionHitTest = function(left,right) {
 };
 model_core_CollisionHitTest.__name__ = true;
 model_core_CollisionHitTest.hitTest = function(left,right) {
-	if(js_Boot.__instanceof(left.shape,model_core_shape_Circle) && js_Boot.__instanceof(right.shape,model_core_shape_Circle)) {
-		haxe_Log.trace(left.pos.distanceTo(right.pos),{ fileName : "CollisionHitTest.hx", lineNumber : 14, className : "model.core.CollisionHitTest", methodName : "hitTest", customParams : [(js_Boot.__cast(left.shape , model_core_shape_Circle)).radius + (js_Boot.__cast(right.shape , model_core_shape_Circle)).radius]});
-		return left.pos.distanceTo(right.pos) < (js_Boot.__cast(left.shape , model_core_shape_Circle)).radius + (js_Boot.__cast(right.shape , model_core_shape_Circle)).radius;
-	}
+	if(js_Boot.__instanceof(left.shape,model_core_shape_Circle) && js_Boot.__instanceof(right.shape,model_core_shape_Circle)) return left.pos.distanceTo(right.pos) < (js_Boot.__cast(left.shape , model_core_shape_Circle)).radius + (js_Boot.__cast(right.shape , model_core_shape_Circle)).radius;
 	return false;
 };
 model_core_CollisionHitTest.prototype = {
@@ -285,76 +329,24 @@ model_core_CollisionStatus.prototype = {
 	}
 	,__class__: model_core_CollisionStatus
 };
-var model_core_GameStepCore = $hx_exports.model.core.GameStepCore = function() {
-	this.enemies = [];
-	this.items = [];
-	this.friends = [];
+var model_core_GameStepCore = $hx_exports.model.core.GameStepCore = function(eachCollision) {
+	this.eachCollision = eachCollision;
 };
 model_core_GameStepCore.__name__ = true;
 model_core_GameStepCore.__interfaces__ = [model_core_Step];
 model_core_GameStepCore.prototype = {
 	step: function() {
-		var _g = 0;
-		var _g1 = [this.friends,this.items,this.enemies];
-		while(_g < _g1.length) {
-			var list = _g1[_g];
-			++_g;
-			this.everyStep(list);
-		}
-		this.everyCollision(this.friends,this.items);
-		this.everyCollision(this.friends,this.enemies);
-		var _g2 = 0;
-		var _g11 = [this.friends,this.items,this.enemies];
-		while(_g2 < _g11.length) {
-			var list1 = _g11[_g2];
-			++_g2;
-			this.removeDead(list1);
-		}
-	}
-	,everyStep: function(ary) {
-		var _g = 0;
-		while(_g < ary.length) {
-			var c = ary[_g];
-			++_g;
+		this.eachCollision.eachCollision(function(c) {
 			c.step();
-		}
-	}
-	,everyCollision: function(ary1,ary2) {
-		var _g = 0;
-		while(_g < ary1.length) {
-			var c1 = ary1[_g];
-			++_g;
-			var _g1 = 0;
-			while(_g1 < ary2.length) {
-				var c2 = ary2[_g1];
-				++_g1;
-				c1.eachAttacked(c2);
-			}
-		}
-	}
-	,removeDead: function(ary) {
+		});
+		this.eachCollision.eachHitCollisionPair(function(c1,c2) {
+			if(model_core_CollisionHitTest.hitTest(c1,c2)) c1.eachAttacked(c2);
+		});
 		var deads = [];
-		var _g = 0;
-		while(_g < ary.length) {
-			var c = ary[_g];
-			++_g;
-			if(c.isDead()) deads.push(c);
-		}
-		var _g1 = 0;
-		while(_g1 < deads.length) {
-			var c1 = deads[_g1];
-			++_g1;
-			HxOverrides.remove(ary,c1);
-		}
-	}
-	,addFriend: function(c) {
-		this.friends.push(c);
-	}
-	,addItem: function(c) {
-		this.items.push(c);
-	}
-	,addEnemy: function(c) {
-		this.enemies.push(c);
+		this.eachCollision.eachCollision(function(c3) {
+			if(c3.isDead()) deads.push(c3);
+		});
+		this.eachCollision.remove(deads);
 	}
 	,__class__: model_core_GameStepCore
 };
@@ -395,6 +387,11 @@ model_core_Player.prototype = $extend(model_core_Collision.prototype,{
 	,left: function() {
 		this.pos.x = this.pos.x - this.speed;
 	}
+	,shot: function() {
+		var pos = model_core_Position.zero();
+		pos.y = -3;
+		model_core_StepablePosition.linear(pos);
+	}
 	,__class__: model_core_Player
 });
 var model_core_Position = $hx_exports.model.core.Position = function() {
@@ -411,6 +408,25 @@ model_core_Position.prototype = {
 	}
 	,__class__: model_core_Position
 };
+var model_core_StepablePosition = $hx_exports.model.core.StepablePosition = function(step) {
+	model_core_Position.call(this);
+	this._step = step;
+};
+model_core_StepablePosition.__name__ = true;
+model_core_StepablePosition.__interfaces__ = [model_core_Step];
+model_core_StepablePosition.linear = function(diff) {
+	return new model_core_StepablePosition(function(pos) {
+		pos.x = pos.x + diff.x;
+		pos.y = pos.y + diff.y;
+	});
+};
+model_core_StepablePosition.__super__ = model_core_Position;
+model_core_StepablePosition.prototype = $extend(model_core_Position.prototype,{
+	step: function() {
+		this._step(this);
+	}
+	,__class__: model_core_StepablePosition
+});
 var model_core_shape_Shape = function() { };
 model_core_shape_Shape.__name__ = true;
 var model_core_shape_Circle = $hx_exports.model.core.shape.Circle = function(r) {
@@ -438,6 +454,7 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
+Main.collisions = new model_domain_SimpleCollisions();
 js_Boot.__toStr = {}.toString;
 Main.main();
 })(typeof console != "undefined" ? console : {log:function(){}}, typeof window != "undefined" ? window : exports);

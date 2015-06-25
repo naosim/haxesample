@@ -11,7 +11,7 @@ class CollisionHitTest {
 
   public static function hitTest(left: Collision, right: Collision): Bool {
     if(Std.is(left.shape, Circle) && Std.is(right.shape, Circle)) {
-      trace(left.pos.distanceTo(right.pos), cast(left.shape, Circle).radius + cast(right.shape, Circle).radius);
+      // trace(left.pos.distanceTo(right.pos), cast(left.shape, Circle).radius + cast(right.shape, Circle).radius);
       return left.pos.distanceTo(right.pos) < cast(left.shape, Circle).radius + cast(right.shape, Circle).radius;
     }
     return false;
