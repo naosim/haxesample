@@ -1,5 +1,5 @@
 package model.core;
 
 class Stage {
-  pos: Position;
+    var pos:Position;
 }

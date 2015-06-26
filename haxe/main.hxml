@@ -1,2 +1,3 @@
 -main Main
 -js ../js/main.js
+-cmd echo "BUILD SUCCESS => js/main.js"

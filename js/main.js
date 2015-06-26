@@ -40,6 +40,7 @@ var model_domain_SimpleCollisions = function() {
 	this.items = [];
 	this.players = [];
 	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
+	var a = "macro/build_time";
 };
 model_domain_SimpleCollisions.__name__ = true;
 model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
