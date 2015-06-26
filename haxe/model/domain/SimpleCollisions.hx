@@ -3,19 +3,21 @@ package model.domain;
 import model.core.EachHitCollision;
 import model.core.Collision;
 
+@:expose
 class SimpleCollisions implements EachHitCollision {
     private var players:Array<Collision> = [];
     private var items:Array<Collision> = [];
     private var shots:Array<Collision> = [];
     private var enemies:Array<Collision> = [];
     private var enemyShots:Array<Collision> = [];
-/*public var shape: Shape;*/
+
+    public var onCreateListener:Collision -> Void;
+    public var onDestoryListener:Collision -> Void;
 
     private var all:Array<Array<Collision>>;
 
     public function new() {
         all = [players, items, shots, enemies, enemyShots];
-        var a = "macro/build_time";
     }
 
     public function addPlayer(c:Collision) {
@@ -42,7 +44,6 @@ class SimpleCollisions implements EachHitCollision {
         eachHitCollisionPairWithList(players, items, callback);
         eachHitCollisionPairWithList(players, enemies, callback);
         eachHitCollisionPairWithList(players, enemyShots, callback);
-
         eachHitCollisionPairWithList(shots, enemies, callback);
     }
 

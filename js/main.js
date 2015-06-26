@@ -2,6 +2,7 @@
 $hx_exports.model = $hx_exports.model || {};
 $hx_exports.model.core = $hx_exports.model.core || {};
 $hx_exports.model.core.shape = $hx_exports.model.core.shape || {};
+;$hx_exports.model.domain = $hx_exports.model.domain || {};
 function $extend(from, fields) {
 	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
 	for (var name in fields) proto[name] = fields[name];
@@ -33,14 +34,13 @@ model_core_EachHitCollision.__name__ = true;
 model_core_EachHitCollision.prototype = {
 	__class__: model_core_EachHitCollision
 };
-var model_domain_SimpleCollisions = function() {
+var model_domain_SimpleCollisions = $hx_exports.model.domain.SimpleCollisions = function() {
 	this.enemyShots = [];
 	this.enemies = [];
 	this.shots = [];
 	this.items = [];
 	this.players = [];
 	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
-	var a = "macro/build_time";
 };
 model_domain_SimpleCollisions.__name__ = true;
 model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
@@ -364,6 +364,60 @@ model_core_HitPoint.prototype = {
 	}
 	,__class__: model_core_HitPoint
 };
+var model_core_Position = $hx_exports.model.core.Position = function(x,y) {
+	if(y == null) y = 0;
+	if(x == null) x = 0;
+	this.y = 0;
+	this.x = 0;
+	this.x = x;
+	this.y = y;
+};
+model_core_Position.__name__ = true;
+model_core_Position.zero = function() {
+	return new model_core_Position();
+};
+model_core_Position.prototype = {
+	distanceTo: function(other) {
+		return Math.sqrt(Math.pow(this.x - other.x,2) + Math.pow(this.y - other.y,2));
+	}
+	,__class__: model_core_Position
+};
+var model_core_LinearMovablePosition = $hx_exports.model.core.LinearMovablePosition = function(x,y,step) {
+	model_core_Position.call(this,x,y);
+	this._step = step;
+};
+model_core_LinearMovablePosition.__name__ = true;
+model_core_LinearMovablePosition.__interfaces__ = [model_core_Step];
+model_core_LinearMovablePosition.linear = function(defaultPosition,diff) {
+	return new model_core_LinearMovablePosition(defaultPosition.x,defaultPosition.y,function(pos) {
+		pos.x = pos.x + diff.x;
+		pos.y = pos.y + diff.y;
+	});
+};
+model_core_LinearMovablePosition.__super__ = model_core_Position;
+model_core_LinearMovablePosition.prototype = $extend(model_core_Position.prototype,{
+	step: function() {
+		this._step(this);
+	}
+	,__class__: model_core_LinearMovablePosition
+});
+var model_core_LinearMoveCollision = function(shape,status,pos) {
+	model_core_Collision.call(this,shape,status,pos);
+	this.movablePos = pos;
+};
+model_core_LinearMoveCollision.__name__ = true;
+model_core_LinearMoveCollision.circle = function(params) {
+	var c = new model_core_shape_Circle(params.r);
+	var status = new model_core_CollisionStatus(new model_core_HitPoint(params.hp),params.ap);
+	return new model_core_LinearMoveCollision(c,status,params.pos);
+};
+model_core_LinearMoveCollision.__super__ = model_core_Collision;
+model_core_LinearMoveCollision.prototype = $extend(model_core_Collision.prototype,{
+	step: function() {
+		this.movablePos.step();
+	}
+	,__class__: model_core_LinearMoveCollision
+});
 var model_core_Player = $hx_exports.model.core.Player = function(shape,status,pos) {
 	this.speed = 1;
 	model_core_Collision.call(this,shape,status,pos);
@@ -391,42 +445,11 @@ model_core_Player.prototype = $extend(model_core_Collision.prototype,{
 	,shot: function() {
 		var pos = model_core_Position.zero();
 		pos.y = -3;
-		model_core_StepablePosition.linear(pos);
+		var shotPos = model_core_LinearMovablePosition.linear(this.pos,new model_core_Position(0,-3));
+		var shot = model_core_LinearMoveCollision.circle({ r : 10, hp : 100, ap : 1, pos : shotPos});
+		Main.collisions.addShot(shot);
 	}
 	,__class__: model_core_Player
-});
-var model_core_Position = $hx_exports.model.core.Position = function() {
-	this.y = 0;
-	this.x = 0;
-};
-model_core_Position.__name__ = true;
-model_core_Position.zero = function() {
-	return new model_core_Position();
-};
-model_core_Position.prototype = {
-	distanceTo: function(other) {
-		return Math.sqrt(Math.pow(this.x - other.x,2) + Math.pow(this.y - other.y,2));
-	}
-	,__class__: model_core_Position
-};
-var model_core_StepablePosition = $hx_exports.model.core.StepablePosition = function(step) {
-	model_core_Position.call(this);
-	this._step = step;
-};
-model_core_StepablePosition.__name__ = true;
-model_core_StepablePosition.__interfaces__ = [model_core_Step];
-model_core_StepablePosition.linear = function(diff) {
-	return new model_core_StepablePosition(function(pos) {
-		pos.x = pos.x + diff.x;
-		pos.y = pos.y + diff.y;
-	});
-};
-model_core_StepablePosition.__super__ = model_core_Position;
-model_core_StepablePosition.prototype = $extend(model_core_Position.prototype,{
-	step: function() {
-		this._step(this);
-	}
-	,__class__: model_core_StepablePosition
 });
 var model_core_shape_Shape = function() { };
 model_core_shape_Shape.__name__ = true;

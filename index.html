@@ -1,43 +1,44 @@
 <!DOCTYPE html>
-<meta charset="utf-8" />
+<meta charset="utf-8"/>
 <body></body>
 <script src="js/main.js"></script>
 <script src="js/enchant.js-builds-0.8.2-b/build/enchant.js"></script>
 <script>
 
-  var chara1 = "js/enchant.js-builds-0.8.2-b/images/chara1.png"
+    var chara1 = "js/enchant.js-builds-0.8.2-b/images/chara1.png"
     enchant(); // initialize
     var game = new Core(320, 320); // game stage
     game.preload(chara1); // preload image
     game.fps = 30;
 
     // スペースキーをaボタンにバインド
-    game.keybind( ' '.charCodeAt(0), 'a' );
+    game.keybind(' '.charCodeAt(0), 'a');
 
 
-    game.onload = function(){
+    game.onload = function () {
         var bear = new Sprite(32, 32);
         bear.player = Main.player;
         bear.image = game.assets[chara1];
         game.rootScene.addChild(bear);
-        bear.addEventListener('enterframe', function(){
-          bear.x = bear.player.pos.x;
-          bear.y = bear.player.pos.y;
+        bear.addEventListener('enterframe', function () {
+            bear.x = bear.player.pos.x;
+            bear.y = bear.player.pos.y;
 
 
-          if (game.input.up) bear.player.up();
-          if (game.input.down) bear.player.down();
-          if (game.input.right) bear.player.right();
-          if (game.input.left) bear.player.left();
+            if (game.input.up) bear.player.up();
+            if (game.input.down) bear.player.down();
+            if (game.input.right) bear.player.right();
+            if (game.input.left) bear.player.left();
         });
 
-        game.addEventListener( 'abuttondown', function(){
-          // 「a」ボタンを押した時のイベント処理
-          console.log("a")
+        game.addEventListener('abuttondown', function () {
+            // 「a」ボタンを押した時のイベント処理
+            console.log("a");
+            bear.player.shot();
         });
 
-        game.rootScene.addEventListener('enterframe', function(){
-          Main.gameCore.step();
+        game.rootScene.addEventListener('enterframe', function () {
+            Main.gameCore.step();
         });
     };
 

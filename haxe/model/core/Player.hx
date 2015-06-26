@@ -1,7 +1,8 @@
 package model.core;
-import model.core.shape.Shape;
+
+import model.core.LinearMoveCollision;
 import model.core.shape.Circle;
-import model.core.Position;
+import model.core.shape.Shape;
 @:expose
 class Player extends Collision {
 
@@ -33,7 +34,10 @@ class Player extends Collision {
     public function shot() {
         var pos = Position.zero();
         pos.y = -3;
-        StepablePosition.linear(pos);
+        var shotPos = LinearMovablePosition.linear(this.pos, new Position(0, -3));
+        var shot = LinearMoveCollision.circle({r: 10, hp: 100, ap: 1, pos: shotPos});
+
+        Main.collisions.addShot(shot);
     }
 
     public static function circle(params:{r:Int, hp:Int, ap:Int, pos:Position}):Player {
