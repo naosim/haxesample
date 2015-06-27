@@ -1,8 +1,8 @@
 (function (console, $hx_exports) { "use strict";
 $hx_exports.model = $hx_exports.model || {};
-$hx_exports.model.core = $hx_exports.model.core || {};
+$hx_exports.model.domain = $hx_exports.model.domain || {};
+;$hx_exports.model.core = $hx_exports.model.core || {};
 $hx_exports.model.core.shape = $hx_exports.model.core.shape || {};
-;$hx_exports.model.domain = $hx_exports.model.domain || {};
 function $extend(from, fields) {
 	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
 	for (var name in fields) proto[name] = fields[name];
@@ -41,7 +41,7 @@ model_core_EachHitCollision.__name__ = true;
 model_core_EachHitCollision.prototype = {
 	__class__: model_core_EachHitCollision
 };
-var model_domain_SimpleCollisions = $hx_exports.model.domain.SimpleCollisions = function() {
+var model_domain_SimpleCollisions = function() {
 	this.enemyShots = model_domain_SimpleCollisions.collisionArray();
 	this.enemies = model_domain_SimpleCollisions.collisionArray();
 	this.shots = model_domain_SimpleCollisions.collisionArray();
@@ -52,7 +52,7 @@ var model_domain_SimpleCollisions = $hx_exports.model.domain.SimpleCollisions = 
 model_domain_SimpleCollisions.__name__ = true;
 model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
 model_domain_SimpleCollisions.collisionArray = function() {
-	return new model_core_ArrayObserver([]);
+	return new model_core_lib_ArrayObserver([]);
 };
 model_domain_SimpleCollisions.prototype = {
 	setObserver: function(onCreateListener,onDestoryListener) {
@@ -118,7 +118,7 @@ Main.setup = function(size,onCreateListener,onDestoryListener) {
 	Main.gameCore = new model_core_GameStepCore(Main.collisions,size);
 	Main.collisions.setObserver(onCreateListener,onDestoryListener);
 	var params = model_core_CollisionParams.circle({ r : 8, hp : 100, ap : 20, tag : model_domain_TagName.player});
-	Main.player = new model_core_Player(params,new model_core_Position(160,240));
+	Main.player = new model_domain_Player(params,new model_core_Position(160,240));
 	Main.collisions.players.push(Main.player);
 	var enemy = new model_core_Collision(model_core_CollisionParams.circle({ r : 8, hp : 5, ap : 5, tag : model_domain_TagName.enemy}),new model_core_Position(80,20));
 	Main.collisions.enemies.push(enemy);
@@ -302,34 +302,6 @@ js_Boot.__isNativeObj = function(o) {
 js_Boot.__resolveNativeClass = function(name) {
 	return (Function("return typeof " + name + " != \"undefined\" ? " + name + " : null"))();
 };
-var model_core_ArrayObserver = function(ary) {
-	this.ary = ary;
-};
-model_core_ArrayObserver.__name__ = true;
-model_core_ArrayObserver.prototype = {
-	setObserver: function(onCreateListener,onDestoryListener) {
-		this.onCreateListener = onCreateListener;
-		this.onDestoryListener = onDestoryListener;
-		var _g = 0;
-		var _g1 = this.ary;
-		while(_g < _g1.length) {
-			var o = _g1[_g];
-			++_g;
-			this.onCreateListener(o);
-		}
-	}
-	,push: function(o) {
-		this.ary.push(o);
-		this.onCreateListener(o);
-	}
-	,remove: function(o) {
-		if(HxOverrides.remove(this.ary,o)) this.onDestoryListener(o);
-	}
-	,iterator: function() {
-		return HxOverrides.iter(this.ary);
-	}
-	,__class__: model_core_ArrayObserver
-};
 var model_core_Terminatable = function() { };
 model_core_Terminatable.__name__ = true;
 model_core_Terminatable.prototype = {
@@ -340,7 +312,7 @@ model_core_Step.__name__ = true;
 model_core_Step.prototype = {
 	__class__: model_core_Step
 };
-var model_core_Collision = $hx_exports.model.core.Collision = function(params,pos) {
+var model_core_Collision = function(params,pos) {
 	if(pos != null) this.pos = pos; else this.pos = model_core_Position.zero();
 	this.shape = params.shape;
 	this.status = params.status;
@@ -358,13 +330,13 @@ model_core_Collision.prototype = {
 		return this.status.isDead();
 	}
 	,hasTag: function(tag) {
-		return this.identifier.tag.has(tag);
+		return this.identifier.hasTag(tag);
 	}
-	,registerHit: function(l) {
-		this.status.hitPoint.register(l);
+	,registerHitPoint: function(l) {
+		this.status.registerHitPoint(l);
 	}
-	,unregisterHit: function(l) {
-		this.status.hitPoint.unregister(l);
+	,unregisterHitPoint: function(l) {
+		this.status.unregisterHitPoint(l);
 	}
 	,terminate: function() {
 		this.status.terminate();
@@ -397,7 +369,7 @@ model_core_CollisionHitTest.hitTest = function(left,right) {
 model_core_CollisionHitTest.prototype = {
 	__class__: model_core_CollisionHitTest
 };
-var model_core_CollisionIdentifier = $hx_exports.model.core.CollisionIdentifier = function(tag) {
+var model_core_CollisionIdentifier = function(tag) {
 	this.id = model_core_CollisionIdentifier.createId();
 	if(tag != null) this.tag = tag; else this.tag = new model_core_Tag();
 };
@@ -410,7 +382,10 @@ model_core_CollisionIdentifier.withTag = function(tag,tags) {
 	return new model_core_CollisionIdentifier(new model_core_Tag(tag,tags));
 };
 model_core_CollisionIdentifier.prototype = {
-	__class__: model_core_CollisionIdentifier
+	hasTag: function(tagName) {
+		return this.tag.has(tagName);
+	}
+	,__class__: model_core_CollisionIdentifier
 };
 var model_core_Tag = function(tag,tags) {
 	this.tags = new haxe_ds_StringMap();
@@ -457,9 +432,15 @@ model_core_CollisionStatus.prototype = {
 	,terminate: function() {
 		this.hitPoint.terminate();
 	}
+	,registerHitPoint: function(l) {
+		this.hitPoint.register(l);
+	}
+	,unregisterHitPoint: function(l) {
+		this.hitPoint.unregister(l);
+	}
 	,__class__: model_core_CollisionStatus
 };
-var model_core_GameStepCore = $hx_exports.model.core.GameStepCore = function(eachCollision,size) {
+var model_core_GameStepCore = function(eachCollision,size) {
 	this.eachCollision = eachCollision;
 	this.size = size;
 };
@@ -485,6 +466,12 @@ model_core_GameStepCore.prototype = {
 			if(c4.isDead()) deads.push(c4);
 		});
 		this.eachCollision.remove(deads);
+		var _g1 = 0;
+		while(_g1 < deads.length) {
+			var c5 = deads[_g1];
+			++_g1;
+			c5.terminate();
+		}
 	}
 	,isOutOfWorld: function(c) {
 		if(c.pos.x < -this.size.width || c.pos.x > this.size.width * 2) return true;
@@ -493,13 +480,13 @@ model_core_GameStepCore.prototype = {
 	}
 	,__class__: model_core_GameStepCore
 };
-var model_core_ObservableValue = $hx_exports.model.core.ObservableValue = function(value) {
+var model_core_lib_ObservableValue = function(value) {
 	this.listener = [];
 	this.value = value;
 };
-model_core_ObservableValue.__name__ = true;
-model_core_ObservableValue.__interfaces__ = [model_core_Terminatable];
-model_core_ObservableValue.prototype = {
+model_core_lib_ObservableValue.__name__ = true;
+model_core_lib_ObservableValue.__interfaces__ = [model_core_Terminatable];
+model_core_lib_ObservableValue.prototype = {
 	getValue: function() {
 		return this.value;
 	}
@@ -526,27 +513,27 @@ model_core_ObservableValue.prototype = {
 	,terminate: function() {
 		this.listener = null;
 	}
-	,__class__: model_core_ObservableValue
+	,__class__: model_core_lib_ObservableValue
 };
-var model_core_ObservableFloat = function(value) {
-	model_core_ObservableValue.call(this,value);
+var model_core_lib_ObservableFloat = function(value) {
+	model_core_lib_ObservableValue.call(this,value);
 };
-model_core_ObservableFloat.__name__ = true;
-model_core_ObservableFloat.__super__ = model_core_ObservableValue;
-model_core_ObservableFloat.prototype = $extend(model_core_ObservableValue.prototype,{
+model_core_lib_ObservableFloat.__name__ = true;
+model_core_lib_ObservableFloat.__super__ = model_core_lib_ObservableValue;
+model_core_lib_ObservableFloat.prototype = $extend(model_core_lib_ObservableValue.prototype,{
 	addValue: function(value) {
 		this.setValue(this.value + value);
 	}
-	,__class__: model_core_ObservableFloat
+	,__class__: model_core_lib_ObservableFloat
 });
 var model_core_HitPoint = function(value) {
 	this._isRigid = false;
-	model_core_ObservableFloat.call(this,value);
+	model_core_lib_ObservableFloat.call(this,value);
 	if(value == null) this._isRigid = true;
 };
 model_core_HitPoint.__name__ = true;
-model_core_HitPoint.__super__ = model_core_ObservableFloat;
-model_core_HitPoint.prototype = $extend(model_core_ObservableFloat.prototype,{
+model_core_HitPoint.__super__ = model_core_lib_ObservableFloat;
+model_core_HitPoint.prototype = $extend(model_core_lib_ObservableFloat.prototype,{
 	isRigid: function() {
 		return this._isRigid;
 	}
@@ -555,9 +542,10 @@ model_core_HitPoint.prototype = $extend(model_core_ObservableFloat.prototype,{
 	}
 	,__class__: model_core_HitPoint
 });
-var model_core_Position = $hx_exports.model.core.Position = function(x,y) {
+var model_core_Position = function(x,y) {
 	if(y == null) y = 0;
 	if(x == null) x = 0;
+	this.z = 0;
 	this.y = 0;
 	this.x = 0;
 	this.x = x;
@@ -573,7 +561,7 @@ model_core_Position.prototype = {
 	}
 	,__class__: model_core_Position
 };
-var model_core_LinearMovablePosition = $hx_exports.model.core.LinearMovablePosition = function(x,y,step) {
+var model_core_LinearMovablePosition = function(x,y,step) {
 	model_core_Position.call(this,x,y);
 	this._step = step;
 };
@@ -604,13 +592,54 @@ model_core_LinearMoveCollision.prototype = $extend(model_core_Collision.prototyp
 	}
 	,__class__: model_core_LinearMoveCollision
 });
-var model_core_Player = $hx_exports.model.core.Player = function(params,pos) {
+var model_core_lib_ArrayObserver = function(ary) {
+	this.ary = ary;
+};
+model_core_lib_ArrayObserver.__name__ = true;
+model_core_lib_ArrayObserver.prototype = {
+	setObserver: function(onCreateListener,onDestoryListener) {
+		this.onCreateListener = onCreateListener;
+		this.onDestoryListener = onDestoryListener;
+		var _g = 0;
+		var _g1 = this.ary;
+		while(_g < _g1.length) {
+			var o = _g1[_g];
+			++_g;
+			this.onCreateListener(o);
+		}
+	}
+	,push: function(o) {
+		this.ary.push(o);
+		this.onCreateListener(o);
+	}
+	,remove: function(o) {
+		if(HxOverrides.remove(this.ary,o)) this.onDestoryListener(o);
+	}
+	,iterator: function() {
+		return HxOverrides.iter(this.ary);
+	}
+	,__class__: model_core_lib_ArrayObserver
+};
+var model_core_shape_Shape = function() { };
+model_core_shape_Shape.__name__ = true;
+var model_core_shape_Circle = $hx_exports.model.core.shape.Circle = function(r) {
+	this.radius = r;
+};
+model_core_shape_Circle.__name__ = true;
+model_core_shape_Circle.__interfaces__ = [model_core_shape_Shape];
+model_core_shape_Circle.prototype = {
+	get_pos: function() {
+		return this.pos;
+	}
+	,__class__: model_core_shape_Circle
+};
+var model_domain_Player = $hx_exports.model.domain.Player = function(params,pos) {
 	this.speed = 1;
 	model_core_Collision.call(this,params,pos);
 };
-model_core_Player.__name__ = true;
-model_core_Player.__super__ = model_core_Collision;
-model_core_Player.prototype = $extend(model_core_Collision.prototype,{
+model_domain_Player.__name__ = true;
+model_domain_Player.__super__ = model_core_Collision;
+model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	step: function() {
 	}
 	,up: function() {
@@ -626,27 +655,15 @@ model_core_Player.prototype = $extend(model_core_Collision.prototype,{
 		this.pos.x = this.pos.x - this.speed;
 	}
 	,shot: function() {
+		var shotSpeed = 3;
 		var pos = model_core_Position.zero();
-		pos.y = -3;
+		pos.y = -shotSpeed;
 		var shotPos = model_core_LinearMovablePosition.linear(this.pos,new model_core_Position(0,-3));
 		var shot = new model_core_LinearMoveCollision(model_core_CollisionParams.circle({ r : 2, hp : 1, ap : 10, tag : model_domain_TagName.shot}),shotPos);
 		Main.collisions.shots.push(shot);
 	}
-	,__class__: model_core_Player
+	,__class__: model_domain_Player
 });
-var model_core_shape_Shape = function() { };
-model_core_shape_Shape.__name__ = true;
-var model_core_shape_Circle = $hx_exports.model.core.shape.Circle = function(r) {
-	this.radius = r;
-};
-model_core_shape_Circle.__name__ = true;
-model_core_shape_Circle.__interfaces__ = [model_core_shape_Shape];
-model_core_shape_Circle.prototype = {
-	get_pos: function() {
-		return this.pos;
-	}
-	,__class__: model_core_shape_Circle
-};
 var model_domain_TagName = $hx_exports.model.domain.TagName = function() { };
 model_domain_TagName.__name__ = true;
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }

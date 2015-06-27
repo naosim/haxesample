@@ -1,5 +1,6 @@
 package model.core;
 
+import model.core.lib.ObservableFloat;
 class HitPoint extends ObservableFloat {
     var _isRigid:Bool = false;
 

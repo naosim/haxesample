@@ -1,6 +1,5 @@
 package model.core;
 
-@:expose
 class GameStepCore implements Step {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
@@ -27,7 +26,7 @@ class GameStepCore implements Step {
         eachCollision.eachCollision(function(c:Collision) { if (c.isDead()) deads.push(c); });
         eachCollision.remove(deads);
 
-        // 終了処理
+        // 死んだ残骸処理
         for(c in deads) c.terminate();
     }
 

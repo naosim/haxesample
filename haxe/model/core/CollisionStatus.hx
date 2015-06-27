@@ -25,4 +25,12 @@ class CollisionStatus implements Terminatable {
     public function terminate(): Void {
         hitPoint.terminate();
     }
+
+    public function registerHitPoint(l: Float -> Float -> Void) {
+        hitPoint.register(l);
+    }
+
+    public function unregisterHitPoint(l: Float -> Float -> Void) {
+        hitPoint.unregister(l);
+    }
 }

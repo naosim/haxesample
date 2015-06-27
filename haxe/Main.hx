@@ -1,9 +1,9 @@
 package;
+import model.domain.Player;
 import model.core.CollisionIdentifier;
 import model.core.Position;
 import model.core.Collision;
 import model.domain.SimpleCollisions;
-import model.core.Player;
 import model.core.GameStepCore;
 
 @:expose

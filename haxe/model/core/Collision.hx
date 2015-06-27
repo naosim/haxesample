@@ -3,7 +3,7 @@ package model.core;
 import model.core.CollisionIdentifier;
 import model.core.shape.Circle;
 import model.core.shape.Shape;
-@:expose
+
 class Collision implements Step implements Terminatable {
     public var pos(default, null):Position;// 画面に対する相対位置
     public var shape(default, null):Shape;
@@ -30,14 +30,14 @@ class Collision implements Step implements Terminatable {
     }
 
     public function hasTag(tag:String):Bool {
-        return identifier.tag.has(tag);
+        return identifier.hasTag(tag);
     }
 
-    public function registerHit(l: Float -> Float -> Void) {
-        status.hitPoint.register(l);
+    public function registerHitPoint(l: Float -> Float -> Void) {
+        status.registerHitPoint(l);
     }
-    public function unregisterHit(l: Float -> Float -> Void) {
-        status.hitPoint.unregister(l);
+    public function unregisterHitPoint(l: Float -> Float -> Void) {
+        status.unregisterHitPoint(l);
     }
 
     public function terminate(): Void {

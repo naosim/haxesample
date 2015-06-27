@@ -37,7 +37,7 @@
             if (game.input.right) c.right();
             if (game.input.left) c.left();
         });
-        c.registerHit(function(before, after) {
+        c.registerHitPoint(function(before, after) {
             console.log(before, after);
         });
         return bear;

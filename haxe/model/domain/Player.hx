@@ -1,12 +1,11 @@
-package model.core;
+package model.domain;
 
+import model.core.LinearMovablePosition;
+import model.core.Position;
 import model.domain.SimpleCollisions.TagName;
+import model.core.Collision;
 import model.core.Collision.CollisionParams;
-import model.core.CollisionIdentifier;
-import model.core.CollisionIdentifier.Tag;
 import model.core.LinearMoveCollision;
-import model.core.shape.Circle;
-import model.core.shape.Shape;
 @:expose
 class Player extends Collision {
 
@@ -36,8 +35,9 @@ class Player extends Collision {
     }
 
     public function shot() {
+        var shotSpeed = 3;
         var pos = Position.zero();
-        pos.y = -3;
+        pos.y = -shotSpeed;
         var shotPos = LinearMovablePosition.linear(this.pos, new Position(0, -3));
         var shot = new LinearMoveCollision(CollisionParams.circle({r: 2, hp: 1, ap: 10, tag: TagName.shot}), shotPos);
 

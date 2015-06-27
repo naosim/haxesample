@@ -1,5 +1,4 @@
-package model.core;
-@:expose
+package model.core.lib;
 class ObservableValue<T> implements Terminatable{
     var value:T;
     var listener:Array<T -> T -> Void> = [];

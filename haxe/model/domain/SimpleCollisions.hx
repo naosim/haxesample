@@ -1,10 +1,10 @@
 package model.domain;
 
-import model.core.ArrayObserver;
+import model.core.lib.ArrayObserver;
+import model.core.lib.ArrayObserver;
 import model.core.EachHitCollision;
 import model.core.Collision;
 
-@:expose
 class SimpleCollisions implements EachHitCollision {
     public var players(default, null):ArrayObserver<Collision> = collisionArray();
     public var items(default, null):ArrayObserver<Collision> = collisionArray();
@@ -28,6 +28,7 @@ class SimpleCollisions implements EachHitCollision {
     ) {
         for (list in all) list.setObserver(onCreateListener, onDestoryListener);
     }
+
     public function eachHitCollisionPair(callback:Collision -> Collision -> Void):Void {
         eachHitCollisionPairWithList(players, items, callback);
         eachHitCollisionPairWithList(players, enemies, callback);
@@ -35,7 +36,7 @@ class SimpleCollisions implements EachHitCollision {
         eachHitCollisionPairWithList(shots, enemies, callback);
     }
 
-    private function eachHitCollisionPairWithList(ary1:Iterable<Collision>, ary2:Iterable<Collision>, callback:Collision -> Collision -> Void) {
+    function eachHitCollisionPairWithList(ary1:Iterable<Collision>, ary2:Iterable<Collision>, callback:Collision -> Collision -> Void) {
         for (c1 in ary1) for (c2 in ary2) callback(c1, c2);
     }
 

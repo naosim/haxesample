@@ -1,4 +1,4 @@
-package model.core;
+package model.core.lib;
 class ArrayObserver<T> {
     private var ary: Array<T>;
     private var onCreateListener:Null<T -> Void>;

@@ -1,5 +1,5 @@
 package model.core;
-@:expose
+
 class LinearMovablePosition extends Position implements Step {
     private var _step:Position -> Void;
 

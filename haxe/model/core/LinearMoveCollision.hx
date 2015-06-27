@@ -1,10 +1,7 @@
 package model.core;
-import model.core.CollisionStatus;
 import model.core.Collision;
-import model.core.HitPoint;
-import model.core.shape.Circle;
 import model.core.LinearMovablePosition;
-import model.core.shape.Shape;
+
 class LinearMoveCollision extends Collision {
     var movablePos:LinearMovablePosition;
 
