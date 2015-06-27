@@ -26,6 +26,9 @@ class GameStepCore implements Step {
         var deads:Array<Collision> = [];
         eachCollision.eachCollision(function(c:Collision) { if (c.isDead()) deads.push(c); });
         eachCollision.remove(deads);
+
+        // 終了処理
+        for(c in deads) c.terminate();
     }
 
     private function isOutOfWorld(c:Collision): Bool {

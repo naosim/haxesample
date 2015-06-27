@@ -1,6 +1,6 @@
 package model.core;
 
-class CollisionStatus {
+class CollisionStatus implements Terminatable {
     public var hitPoint:HitPoint;
     public var attackPoint:Int;
     public var terminated:Bool = false;
@@ -21,5 +21,8 @@ class CollisionStatus {
 
     public function isDead():Bool {
         return hitPoint.isDead() || terminated;
+    }
+    public function terminate(): Void {
+        hitPoint.terminate();
     }
 }

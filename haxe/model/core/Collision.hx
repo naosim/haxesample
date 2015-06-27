@@ -4,7 +4,7 @@ import model.core.CollisionIdentifier;
 import model.core.shape.Circle;
 import model.core.shape.Shape;
 @:expose
-class Collision implements Step {
+class Collision implements Step implements Terminatable {
     public var pos(default, null):Position;// 画面に対する相対位置
     public var shape(default, null):Shape;
     public var status:CollisionStatus;
@@ -22,7 +22,7 @@ class Collision implements Step {
     }
 
     public function step() {
-
+        // implements subclass
     }
 
     public function isDead():Bool {
@@ -38,6 +38,10 @@ class Collision implements Step {
     }
     public function unregisterHit(l: Float -> Float -> Void) {
         status.hitPoint.unregister(l);
+    }
+
+    public function terminate(): Void {
+        status.terminate();
     }
 }
 

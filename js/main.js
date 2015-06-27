@@ -117,7 +117,7 @@ Main.main = function() {
 Main.setup = function(size,onCreateListener,onDestoryListener) {
 	Main.gameCore = new model_core_GameStepCore(Main.collisions,size);
 	Main.collisions.setObserver(onCreateListener,onDestoryListener);
-	var params = model_core_CollisionParams.circle({ r : 8, hp : 100, ap : 1, tag : model_domain_TagName.player});
+	var params = model_core_CollisionParams.circle({ r : 8, hp : 100, ap : 20, tag : model_domain_TagName.player});
 	Main.player = new model_core_Player(params,new model_core_Position(160,240));
 	Main.collisions.players.push(Main.player);
 	var enemy = new model_core_Collision(model_core_CollisionParams.circle({ r : 8, hp : 5, ap : 5, tag : model_domain_TagName.enemy}),new model_core_Position(80,20));
@@ -330,6 +330,11 @@ model_core_ArrayObserver.prototype = {
 	}
 	,__class__: model_core_ArrayObserver
 };
+var model_core_Terminatable = function() { };
+model_core_Terminatable.__name__ = true;
+model_core_Terminatable.prototype = {
+	__class__: model_core_Terminatable
+};
 var model_core_Step = function() { };
 model_core_Step.__name__ = true;
 model_core_Step.prototype = {
@@ -342,7 +347,7 @@ var model_core_Collision = $hx_exports.model.core.Collision = function(params,po
 	if(params.identifier != null) this.identifier = params.identifier; else this.identifier = new model_core_CollisionIdentifier();
 };
 model_core_Collision.__name__ = true;
-model_core_Collision.__interfaces__ = [model_core_Step];
+model_core_Collision.__interfaces__ = [model_core_Terminatable,model_core_Step];
 model_core_Collision.prototype = {
 	eachAttacked: function(other) {
 		this.status.eachAttacked(other.status);
@@ -360,6 +365,9 @@ model_core_Collision.prototype = {
 	}
 	,unregisterHit: function(l) {
 		this.status.hitPoint.unregister(l);
+	}
+	,terminate: function() {
+		this.status.terminate();
 	}
 	,__class__: model_core_Collision
 };
@@ -434,6 +442,7 @@ var model_core_CollisionStatus = function(hitPoint,attackPoint) {
 	this.attackPoint = attackPoint;
 };
 model_core_CollisionStatus.__name__ = true;
+model_core_CollisionStatus.__interfaces__ = [model_core_Terminatable];
 model_core_CollisionStatus.prototype = {
 	attackedFrom: function(other) {
 		this.hitPoint.addValue(-other.attackPoint);
@@ -444,6 +453,9 @@ model_core_CollisionStatus.prototype = {
 	}
 	,isDead: function() {
 		return this.hitPoint.isDead() || this.terminated;
+	}
+	,terminate: function() {
+		this.hitPoint.terminate();
 	}
 	,__class__: model_core_CollisionStatus
 };
@@ -486,6 +498,7 @@ var model_core_ObservableValue = $hx_exports.model.core.ObservableValue = functi
 	this.value = value;
 };
 model_core_ObservableValue.__name__ = true;
+model_core_ObservableValue.__interfaces__ = [model_core_Terminatable];
 model_core_ObservableValue.prototype = {
 	getValue: function() {
 		return this.value;
@@ -509,6 +522,9 @@ model_core_ObservableValue.prototype = {
 	}
 	,unregister: function(l) {
 		HxOverrides.remove(this.listener,l);
+	}
+	,terminate: function() {
+		this.listener = null;
 	}
 	,__class__: model_core_ObservableValue
 };

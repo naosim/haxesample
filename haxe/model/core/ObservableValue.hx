@@ -1,6 +1,6 @@
 package model.core;
 @:expose
-class ObservableValue<T> {
+class ObservableValue<T> implements Terminatable{
     var value:T;
     var listener:Array<T -> T -> Void> = [];
     public function new(value:T) {
@@ -23,5 +23,9 @@ class ObservableValue<T> {
 
     public function unregister(l: T -> T -> Void) {
         listener.remove(l);
+    }
+
+    public function terminate(): Void {
+        listener = null;
     }
 }
