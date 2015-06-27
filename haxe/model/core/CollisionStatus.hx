@@ -3,6 +3,7 @@ package model.core;
 class CollisionStatus {
     public var hitPoint:HitPoint;
     public var attackPoint:Int;
+    public var terminated:Bool = false;
 
     public function new(hitPoint:HitPoint, attackPoint:Int) {
         this.hitPoint = hitPoint;
@@ -10,7 +11,7 @@ class CollisionStatus {
     }
 
     public function attackedFrom(other:CollisionStatus) {
-        hitPoint.value = hitPoint.value - other.attackPoint;
+        hitPoint.addValue(-other.attackPoint);
     }
 
     public function eachAttacked(other:CollisionStatus) {
@@ -19,6 +20,6 @@ class CollisionStatus {
     }
 
     public function isDead():Bool {
-        return hitPoint.isDead();
+        return hitPoint.isDead() || terminated;
     }
 }

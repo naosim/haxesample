@@ -1,45 +1,33 @@
 package model.domain;
 
+import model.core.ArrayObserver;
 import model.core.EachHitCollision;
 import model.core.Collision;
 
 @:expose
 class SimpleCollisions implements EachHitCollision {
-    private var players:Array<Collision> = [];
-    private var items:Array<Collision> = [];
-    private var shots:Array<Collision> = [];
-    private var enemies:Array<Collision> = [];
-    private var enemyShots:Array<Collision> = [];
+    public var players(default, null):ArrayObserver<Collision> = collisionArray();
+    public var items(default, null):ArrayObserver<Collision> = collisionArray();
+    public var shots(default, null):ArrayObserver<Collision> = collisionArray();
+    public var enemies(default, null):ArrayObserver<Collision> = collisionArray();
+    public var enemyShots(default, null):ArrayObserver<Collision> = collisionArray();
 
-    public var onCreateListener:Collision -> Void;
-    public var onDestoryListener:Collision -> Void;
+    private var all:Array<ArrayObserver<Collision>>;
 
-    private var all:Array<Array<Collision>>;
+    private static function collisionArray(): ArrayObserver<Collision> {
+        return new ArrayObserver<Collision>(new Array<Collision>());
+    }
 
     public function new() {
         all = [players, items, shots, enemies, enemyShots];
     }
 
-    public function addPlayer(c:Collision) {
-        players.push(c);
+    public function setObserver(
+        onCreateListener:Collision -> Void,
+        onDestoryListener:Collision -> Void
+    ) {
+        for (list in all) list.setObserver(onCreateListener, onDestoryListener);
     }
-
-    public function addItem(c:Collision) {
-        items.push(c);
-    }
-
-    public function addShot(c:Collision) {
-        shots.push(c);
-    }
-
-    public function addEnemy(c:Collision) {
-        enemies.push(c);
-    }
-
-    public function addEnemyShot(c:Collision) {
-        enemyShots.push(c);
-    }
-
     public function eachHitCollisionPair(callback:Collision -> Collision -> Void):Void {
         eachHitCollisionPairWithList(players, items, callback);
         eachHitCollisionPairWithList(players, enemies, callback);
@@ -47,7 +35,7 @@ class SimpleCollisions implements EachHitCollision {
         eachHitCollisionPairWithList(shots, enemies, callback);
     }
 
-    private function eachHitCollisionPairWithList(ary1:Array<Collision>, ary2:Array<Collision>, callback:Collision -> Collision -> Void) {
+    private function eachHitCollisionPairWithList(ary1:Iterable<Collision>, ary2:Iterable<Collision>, callback:Collision -> Collision -> Void) {
         for (c1 in ary1) for (c2 in ary2) callback(c1, c2);
     }
 
@@ -59,3 +47,13 @@ class SimpleCollisions implements EachHitCollision {
         for (c in ary) for (list in all) list.remove(c);
     }
 }
+
+@:expose
+class TagName {
+    public static var player = "player";
+    public static var shot = "shot";
+    public static var item = "item";
+    public static var enemy = "enemy";
+    public static var enemyshot = "enemyshot";
+}
+

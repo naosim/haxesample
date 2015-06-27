@@ -1,17 +1,18 @@
 package model.core;
 
-class HitPoint {
-    public var value:Null<Int>;
+class HitPoint extends ObservableFloat {
+    var _isRigid:Bool = false;
 
     public function new(value:Int = null) {
-        this.value = value;
+        super(value);
+        if(value == null) _isRigid = true;
     }
 
     public function isRigid():Bool {
-        return value == null;
+        return _isRigid;
     }
 
     public function isDead():Bool {
-        return !isRigid() && value <= 0;
+        return !_isRigid && value <= 0;
     }
 }

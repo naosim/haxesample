@@ -4,37 +4,97 @@
 <script src="js/main.js"></script>
 <script src="js/enchant.js-builds-0.8.2-b/build/enchant.js"></script>
 <script>
+    var imagePath = function(name){ return "js/enchant.js-builds-0.8.2-b/images/" + name + ".png"; };
+    var addImage = function(name) { image[name] = imagePath(name); };
+    var image = {};
+    addImage("chara1");
+    addImage("icon0");
 
-    var chara1 = "js/enchant.js-builds-0.8.2-b/images/chara1.png"
     enchant(); // initialize
     var game = new Core(320, 320); // game stage
-    game.preload(chara1); // preload image
+    game.preload(image.chara1, image.icon0); // preload image
     game.fps = 30;
 
     // スペースキーをaボタンにバインド
     game.keybind(' '.charCodeAt(0), 'a');
 
+    var player = null;
+
+    Sprite.prototype.setCenter = function(pos) {
+        this.x = pos.x - this.width/2;
+        this.y = pos.y - this.height/2;
+    }
+
+    var createPlayer = function(c) {
+        var bear = new Sprite(32, 32);
+        bear.playerCollision = c;
+        bear.image = game.assets[image.chara1];
+        bear.addEventListener('enterframe', function () {
+            bear.setCenter(c.pos);
+
+            if (game.input.up) c.up();
+            if (game.input.down) c.down();
+            if (game.input.right) c.right();
+            if (game.input.left) c.left();
+        });
+        c.registerHit(function(before, after) {
+            console.log(before, after);
+        });
+        return bear;
+    }
+
+    var createShot = function(c) {
+        var result = new Sprite(16, 16);
+        result.frame = 48;
+        result.playerCollision = c;
+        result.image = game.assets[image.icon0];
+        result.setCenter(c.pos);
+        result.addEventListener('enterframe', function () {
+            result.setCenter(c.pos);
+        });
+        return result;
+    }
+
+    var createEnemy = function(c) {
+        var result = new Sprite(16, 16);
+        result.frame = 16;
+        result.playerCollision = c;
+        result.image = game.assets[image.icon0];
+        result.setCenter(c.pos);
+        result.addEventListener('enterframe', function () {
+            result.setCenter(c.pos);
+        });
+        return result;
+    }
 
     game.onload = function () {
-        var bear = new Sprite(32, 32);
-        bear.player = Main.player;
-        bear.image = game.assets[chara1];
-        game.rootScene.addChild(bear);
-        bear.addEventListener('enterframe', function () {
-            bear.x = bear.player.pos.x;
-            bear.y = bear.player.pos.y;
+        Main.setup(
+        {width:320, height:320},
+        function(c){
+            var sprite;
+            if(c.hasTag("player")) {
+                sprite = player = createPlayer(c);
+            } else if(c.hasTag("shot")) {
+                sprite = createShot(c);
+            } else if(c.hasTag("enemy")) {
+                sprite = createEnemy(c);
+            }
 
+            if(sprite) {
+                c.sprite = sprite;
+                game.rootScene.addChild(sprite);
+            }
 
-            if (game.input.up) bear.player.up();
-            if (game.input.down) bear.player.down();
-            if (game.input.right) bear.player.right();
-            if (game.input.left) bear.player.left();
+        },
+        function(c){
+            game.rootScene.removeChild(c.sprite);
+            console.log("delete");
         });
 
         game.addEventListener('abuttondown', function () {
             // 「a」ボタンを押した時のイベント処理
             console.log("a");
-            bear.player.shot();
+            player.playerCollision.shot();
         });
 
         game.rootScene.addEventListener('enterframe', function () {

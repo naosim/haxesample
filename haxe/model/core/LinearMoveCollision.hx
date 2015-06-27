@@ -8,8 +8,8 @@ import model.core.shape.Shape;
 class LinearMoveCollision extends Collision {
     var movablePos:LinearMovablePosition;
 
-    public function new(shape:Shape, status:CollisionStatus, pos:LinearMovablePosition) {
-        super(shape, status, pos);
+    public function new(params: CollisionParams, pos:LinearMovablePosition) {
+        super(params, pos);
         this.movablePos = pos;
     }
 
@@ -17,10 +17,10 @@ class LinearMoveCollision extends Collision {
         this.movablePos.step();
     }
 
-    public static function circle(params:{r:Int, hp:Int, ap:Int, pos:LinearMovablePosition}):LinearMoveCollision {
-        var c = new Circle(params.r);
-        var status = new CollisionStatus(new HitPoint(params.hp), params.ap);
-        return new LinearMoveCollision(c, status, params.pos);
-    }
+//    public static function circle(params:{r:Int, hp:Int, ap:Int, pos:LinearMovablePosition}):LinearMoveCollision {
+//        var c = new Circle(params.r);
+//        var status = new CollisionStatus(new HitPoint(params.hp), params.ap);
+//        return new LinearMoveCollision(c, status, params.pos);
+//    }
 
 }
