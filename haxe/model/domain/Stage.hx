@@ -1,8 +1,9 @@
 package model.domain;
 
+import model.core.GravityPositionStep;
 import model.core.GravityCollision;
-import model.core.LinearMovablePosition;
-import model.core.LinearMoveCollision;
+import model.core.SteppablePosition;
+import model.core.SteppablePositionCollision;
 import model.core.TimelineStage.TimelineEvent;
 import model.core.CollisionIdentifier.Tag;
 import model.domain.enemy.StraightAndShotEnemy;
@@ -65,7 +66,8 @@ class Stage implements Step {
             if(after) {
                 var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
                 var speed = new Position(0, -5);
-                var c = GravityCollision.create(params, collision.pos, speed);
+                var pos = GravityPositionStep.createPosition(collision.pos, speed);
+                var c = new SteppablePositionCollision(params, pos);
                 Main.collisions.items.push(c);
             }
         });
