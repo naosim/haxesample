@@ -40,6 +40,13 @@ class Collision implements Step implements Terminatable {
         status.unregisterHitPoint(l);
     }
 
+    public function registerDead(l: Bool -> Bool -> Void) {
+        status.registerDead(l);
+    }
+    public function unregisterDead(l: Bool -> Bool -> Void) {
+        status.unregisterDead(l);
+    }
+
     public function terminate(): Void {
         status.terminate();
     }
@@ -59,9 +66,10 @@ class Collision implements Step implements Terminatable {
         this.identifier = identifier;
     }
 
-    public static function circle(params:{r:Int, hp:Int, ap:Int, ?tag: String, ?tags: Array<String>}): CollisionParams {
+    public static function circle(params:{r:Int, hp:Int, ap:Int, ?tagName: String, ?tagNames: Array<String>, ?tag:Tag}): CollisionParams {
         var c = new Circle(params.r);
         var status = new CollisionStatus(new HitPoint(params.hp), params.ap);
-        return new CollisionParams(c, status, CollisionIdentifier.withTag(params.tag, params.tags));
+        var identifier = params.tag != null ? new CollisionIdentifier(params.tag) : CollisionIdentifier.withTag(params.tagName, params.tagNames);
+        return new CollisionParams(c, status, identifier);
     }
 }

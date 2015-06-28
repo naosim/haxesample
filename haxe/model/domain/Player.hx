@@ -1,21 +1,26 @@
 package model.domain;
 
+import model.domain.shot.WeekShot;
 import model.core.LinearMovablePosition;
 import model.core.Position;
-import model.domain.SimpleCollisions.TagName;
 import model.core.Collision;
 import model.core.Collision.CollisionParams;
-import model.core.LinearMoveCollision;
+
 @:expose
 class Player extends Collision {
 
-    public var speed:Float = 1;
+    public var speed:Float = 3;
 
     public override function step() {
     }
 
-    public function new(params: CollisionParams, ?pos: Position) {
+    public function new(?pos: Position) {
+        var params = CollisionParams.circle({r: 8, hp: 50, ap: 20, tagName: TagName.player});
         super(params, pos);
+
+        registerHitPoint(function(before:Float, afterFloat): Void {
+
+        });
     }
 
     public function up() {
@@ -35,14 +40,9 @@ class Player extends Collision {
     }
 
     public function shot() {
-        var shotSpeed = 3;
-        var pos = Position.zero();
-        pos.y = -shotSpeed;
+        if(Main.collisions.shots.length() >= 10) return;
         var shotPos = LinearMovablePosition.linear(this.pos, new Position(0, -3));
-        var shot = new LinearMoveCollision(CollisionParams.circle({r: 2, hp: 1, ap: 10, tag: TagName.shot}), shotPos);
-
-        Main.collisions.shots.push(shot);
+        var shot = WeekShot.create(new Position(this.pos.x, this.pos.y - 8));
+        if(shot != null) Main.collisions.shots.push(shot);
     }
-
-
 }

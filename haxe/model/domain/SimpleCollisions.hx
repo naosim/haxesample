@@ -1,7 +1,6 @@
 package model.domain;
 
 import model.core.lib.ArrayObserver;
-import model.core.lib.ArrayObserver;
 import model.core.EachHitCollision;
 import model.core.Collision;
 
@@ -47,14 +46,5 @@ class SimpleCollisions implements EachHitCollision {
     public function remove(ary:Array<Collision>):Void {
         for (c in ary) for (list in all) list.remove(c);
     }
-}
-
-@:expose
-class TagName {
-    public static var player = "player";
-    public static var shot = "shot";
-    public static var item = "item";
-    public static var enemy = "enemy";
-    public static var enemyshot = "enemyshot";
 }
 

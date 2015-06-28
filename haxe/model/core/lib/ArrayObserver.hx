@@ -29,8 +29,15 @@ class ArrayObserver<T> {
         }
     }
 
+    public function length(): Int {
+        return ary.length;
+    }
+
     public function iterator(): Iterator<T> {
         return ary.iterator();
+    }
+    public function get(index:Int):T {
+        return ary[index];
     }
 }
 

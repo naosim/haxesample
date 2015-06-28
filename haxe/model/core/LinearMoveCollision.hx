@@ -13,11 +13,4 @@ class LinearMoveCollision extends Collision {
     public override function step() {
         this.movablePos.step();
     }
-
-//    public static function circle(params:{r:Int, hp:Int, ap:Int, pos:LinearMovablePosition}):LinearMoveCollision {
-//        var c = new Circle(params.r);
-//        var status = new CollisionStatus(new HitPoint(params.hp), params.ap);
-//        return new LinearMoveCollision(c, status, params.pos);
-//    }
-
 }

@@ -3,12 +3,15 @@ package model.core;
 class GameStepCore implements Step {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
-    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}) {
+    var stepListener:Void -> Void;
+    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, ?stepListener:Void -> Void) {
         this.eachCollision = eachCollision;
         this.size = size;
+        this.stepListener = stepListener != null ? stepListener : function():Void{};
     }
 
     public function step() {
+        stepListener();
         // 全体を移動させる
         eachCollision.eachCollision(function(c:Collision) { c.step(); });
         // 全体を衝突させる

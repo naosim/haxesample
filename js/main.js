@@ -10,7 +10,7 @@ function $extend(from, fields) {
 	return proto;
 }
 var HxOverrides = function() { };
-HxOverrides.__name__ = true;
+HxOverrides.__name__ = ["HxOverrides"];
 HxOverrides.indexOf = function(a,obj,i) {
 	var len = a.length;
 	if(i < 0) {
@@ -37,7 +37,7 @@ HxOverrides.iter = function(a) {
 	}};
 };
 var model_core_EachHitCollision = function() { };
-model_core_EachHitCollision.__name__ = true;
+model_core_EachHitCollision.__name__ = ["model","core","EachHitCollision"];
 model_core_EachHitCollision.prototype = {
 	__class__: model_core_EachHitCollision
 };
@@ -49,7 +49,7 @@ var model_domain_SimpleCollisions = function() {
 	this.players = model_domain_SimpleCollisions.collisionArray();
 	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
 };
-model_domain_SimpleCollisions.__name__ = true;
+model_domain_SimpleCollisions.__name__ = ["model","domain","SimpleCollisions"];
 model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
 model_domain_SimpleCollisions.collisionArray = function() {
 	return new model_core_lib_ArrayObserver([]);
@@ -111,30 +111,41 @@ model_domain_SimpleCollisions.prototype = {
 	,__class__: model_domain_SimpleCollisions
 };
 var Main = $hx_exports.Main = function() { };
-Main.__name__ = true;
+Main.__name__ = ["Main"];
 Main.main = function() {
 };
 Main.setup = function(size,onCreateListener,onDestoryListener) {
-	Main.gameCore = new model_core_GameStepCore(Main.collisions,size);
+	var frame = 0;
+	var stage = new model_domain_Stage();
+	var timelineStage = new model_core_TimelineStage(stage.timelineEvent);
+	Main.gameCore = new model_core_GameStepCore(Main.collisions,size,$bind(timelineStage,timelineStage.step));
 	Main.collisions.setObserver(onCreateListener,onDestoryListener);
-	var params = model_core_CollisionParams.circle({ r : 8, hp : 100, ap : 20, tag : model_domain_TagName.player});
-	Main.player = new model_domain_Player(params,new model_core_Position(160,240));
-	Main.collisions.players.push(Main.player);
-	var enemy = new model_core_Collision(model_core_CollisionParams.circle({ r : 8, hp : 5, ap : 5, tag : model_domain_TagName.enemy}),new model_core_Position(80,20));
-	Main.collisions.enemies.push(enemy);
+	var player = new model_domain_Player(new model_core_Position(model_domain_WorldStatus.WIDTH / 2,240));
+	Main.collisions.players.push(player);
 };
-Math.__name__ = true;
+Main.getPlayerDirectionFrom = function(org) {
+	if(Main.collisions.players.length() == 0) return new model_core_Position(0,1);
+	return org.directionTo(Main.collisions.players.get(0).pos);
+};
+Math.__name__ = ["Math"];
 var Std = function() { };
-Std.__name__ = true;
+Std.__name__ = ["Std"];
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
+var Type = function() { };
+Type.__name__ = ["Type"];
+Type.getClassName = function(c) {
+	var a = c.__name__;
+	if(a == null) return null;
+	return a.join(".");
+};
 var haxe_IMap = function() { };
-haxe_IMap.__name__ = true;
+haxe_IMap.__name__ = ["haxe","IMap"];
 var haxe_ds_StringMap = function() {
 	this.h = { };
 };
-haxe_ds_StringMap.__name__ = true;
+haxe_ds_StringMap.__name__ = ["haxe","ds","StringMap"];
 haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
 haxe_ds_StringMap.prototype = {
 	set: function(key,value) {
@@ -160,13 +171,13 @@ var js__$Boot_HaxeError = function(val) {
 	this.message = String(val);
 	if(Error.captureStackTrace) Error.captureStackTrace(this,js__$Boot_HaxeError);
 };
-js__$Boot_HaxeError.__name__ = true;
+js__$Boot_HaxeError.__name__ = ["js","_Boot","HaxeError"];
 js__$Boot_HaxeError.__super__ = Error;
 js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
 	__class__: js__$Boot_HaxeError
 });
 var js_Boot = function() { };
-js_Boot.__name__ = true;
+js_Boot.__name__ = ["js","Boot"];
 js_Boot.getClass = function(o) {
 	if((o instanceof Array) && o.__enum__ == null) return Array; else {
 		var cl = o.__class__;
@@ -303,12 +314,12 @@ js_Boot.__resolveNativeClass = function(name) {
 	return (Function("return typeof " + name + " != \"undefined\" ? " + name + " : null"))();
 };
 var model_core_Terminatable = function() { };
-model_core_Terminatable.__name__ = true;
+model_core_Terminatable.__name__ = ["model","core","Terminatable"];
 model_core_Terminatable.prototype = {
 	__class__: model_core_Terminatable
 };
 var model_core_Step = function() { };
-model_core_Step.__name__ = true;
+model_core_Step.__name__ = ["model","core","Step"];
 model_core_Step.prototype = {
 	__class__: model_core_Step
 };
@@ -318,7 +329,7 @@ var model_core_Collision = function(params,pos) {
 	this.status = params.status;
 	if(params.identifier != null) this.identifier = params.identifier; else this.identifier = new model_core_CollisionIdentifier();
 };
-model_core_Collision.__name__ = true;
+model_core_Collision.__name__ = ["model","core","Collision"];
 model_core_Collision.__interfaces__ = [model_core_Terminatable,model_core_Step];
 model_core_Collision.prototype = {
 	eachAttacked: function(other) {
@@ -338,6 +349,12 @@ model_core_Collision.prototype = {
 	,unregisterHitPoint: function(l) {
 		this.status.unregisterHitPoint(l);
 	}
+	,registerDead: function(l) {
+		this.status.registerDead(l);
+	}
+	,unregisterDead: function(l) {
+		this.status.unregisterDead(l);
+	}
 	,terminate: function() {
 		this.status.terminate();
 	}
@@ -348,11 +365,13 @@ var model_core_CollisionParams = function(shape,status,identifier) {
 	this.status = status;
 	this.identifier = identifier;
 };
-model_core_CollisionParams.__name__ = true;
+model_core_CollisionParams.__name__ = ["model","core","CollisionParams"];
 model_core_CollisionParams.circle = function(params) {
 	var c = new model_core_shape_Circle(params.r);
 	var status = new model_core_CollisionStatus(new model_core_HitPoint(params.hp),params.ap);
-	return new model_core_CollisionParams(c,status,model_core_CollisionIdentifier.withTag(params.tag,params.tags));
+	var identifier;
+	if(params.tag != null) identifier = new model_core_CollisionIdentifier(params.tag); else identifier = model_core_CollisionIdentifier.withTag(params.tagName,params.tagNames);
+	return new model_core_CollisionParams(c,status,identifier);
 };
 model_core_CollisionParams.prototype = {
 	__class__: model_core_CollisionParams
@@ -361,7 +380,7 @@ var model_core_CollisionHitTest = function(left,right) {
 	this.left = left;
 	this.right = right;
 };
-model_core_CollisionHitTest.__name__ = true;
+model_core_CollisionHitTest.__name__ = ["model","core","CollisionHitTest"];
 model_core_CollisionHitTest.hitTest = function(left,right) {
 	if(js_Boot.__instanceof(left.shape,model_core_shape_Circle) && js_Boot.__instanceof(right.shape,model_core_shape_Circle)) return left.pos.distanceTo(right.pos) < (js_Boot.__cast(left.shape , model_core_shape_Circle)).radius + (js_Boot.__cast(right.shape , model_core_shape_Circle)).radius;
 	return false;
@@ -373,7 +392,7 @@ var model_core_CollisionIdentifier = function(tag) {
 	this.id = model_core_CollisionIdentifier.createId();
 	if(tag != null) this.tag = tag; else this.tag = new model_core_Tag();
 };
-model_core_CollisionIdentifier.__name__ = true;
+model_core_CollisionIdentifier.__name__ = ["model","core","CollisionIdentifier"];
 model_core_CollisionIdentifier.createId = function() {
 	model_core_CollisionIdentifier.idCount++;
 	return "" + model_core_CollisionIdentifier.idCount;
@@ -404,7 +423,7 @@ var model_core_Tag = function(tag,tags) {
 		}
 	}
 };
-model_core_Tag.__name__ = true;
+model_core_Tag.__name__ = ["model","core","Tag"];
 model_core_Tag.prototype = {
 	has: function(tag) {
 		return this.tags.exists(tag);
@@ -412,11 +431,16 @@ model_core_Tag.prototype = {
 	,__class__: model_core_Tag
 };
 var model_core_CollisionStatus = function(hitPoint,attackPoint) {
+	this.isDeadObservable = new model_core_lib_ObservableValue(false);
 	this.terminated = false;
+	var _g = this;
 	this.hitPoint = hitPoint;
 	this.attackPoint = attackPoint;
+	this.registerHitPoint(function(_,after) {
+		if(after <= 0) _g.isDeadObservable.setValue(true);
+	});
 };
-model_core_CollisionStatus.__name__ = true;
+model_core_CollisionStatus.__name__ = ["model","core","CollisionStatus"];
 model_core_CollisionStatus.__interfaces__ = [model_core_Terminatable];
 model_core_CollisionStatus.prototype = {
 	attackedFrom: function(other) {
@@ -431,6 +455,7 @@ model_core_CollisionStatus.prototype = {
 	}
 	,terminate: function() {
 		this.hitPoint.terminate();
+		this.isDeadObservable.terminate();
 	}
 	,registerHitPoint: function(l) {
 		this.hitPoint.register(l);
@@ -438,17 +463,26 @@ model_core_CollisionStatus.prototype = {
 	,unregisterHitPoint: function(l) {
 		this.hitPoint.unregister(l);
 	}
+	,registerDead: function(l) {
+		this.isDeadObservable.register(l);
+	}
+	,unregisterDead: function(l) {
+		this.isDeadObservable.unregister(l);
+	}
 	,__class__: model_core_CollisionStatus
 };
-var model_core_GameStepCore = function(eachCollision,size) {
+var model_core_GameStepCore = function(eachCollision,size,stepListener) {
 	this.eachCollision = eachCollision;
 	this.size = size;
+	if(stepListener != null) this.stepListener = stepListener; else this.stepListener = function() {
+	};
 };
-model_core_GameStepCore.__name__ = true;
+model_core_GameStepCore.__name__ = ["model","core","GameStepCore"];
 model_core_GameStepCore.__interfaces__ = [model_core_Step];
 model_core_GameStepCore.prototype = {
 	step: function() {
 		var _g = this;
+		this.stepListener();
 		this.eachCollision.eachCollision(function(c) {
 			c.step();
 		});
@@ -480,11 +514,35 @@ model_core_GameStepCore.prototype = {
 	}
 	,__class__: model_core_GameStepCore
 };
+var model_core_GravityCollision = function(params,orgPosition,speed,gravity) {
+	model_core_Collision.call(this,params,orgPosition);
+	this.speed = speed;
+	this.gravity = gravity;
+};
+model_core_GravityCollision.__name__ = ["model","core","GravityCollision"];
+model_core_GravityCollision.create = function(params,orgPosition,speed,gravity,gravityDirection) {
+	if(gravity == null) {
+		if(gravityDirection == null) gravityDirection = model_core_GravityCollision.DOWN;
+		if(gravityDirection == model_core_GravityCollision.DOWN) gravity = new model_core_Position(0,0.3); else if(gravityDirection == model_core_GravityCollision.UP) gravity = new model_core_Position(0,-0.3); else if(gravityDirection == model_core_GravityCollision.RIGHT) gravity = new model_core_Position(0.3,0); else if(gravityDirection == model_core_GravityCollision.LEFT) gravity = new model_core_Position(-0.3,0);
+	}
+	return new model_core_GravityCollision(params,orgPosition,speed,gravity);
+};
+model_core_GravityCollision.__super__ = model_core_Collision;
+model_core_GravityCollision.prototype = $extend(model_core_Collision.prototype,{
+	step: function() {
+		model_core_Collision.prototype.step.call(this);
+		this.speed.x += this.gravity.x;
+		this.speed.y += this.gravity.y;
+		this.pos.x += this.speed.x;
+		this.pos.y += this.speed.y;
+	}
+	,__class__: model_core_GravityCollision
+});
 var model_core_lib_ObservableValue = function(value) {
 	this.listener = [];
 	this.value = value;
 };
-model_core_lib_ObservableValue.__name__ = true;
+model_core_lib_ObservableValue.__name__ = ["model","core","lib","ObservableValue"];
 model_core_lib_ObservableValue.__interfaces__ = [model_core_Terminatable];
 model_core_lib_ObservableValue.prototype = {
 	getValue: function() {
@@ -518,7 +576,7 @@ model_core_lib_ObservableValue.prototype = {
 var model_core_lib_ObservableFloat = function(value) {
 	model_core_lib_ObservableValue.call(this,value);
 };
-model_core_lib_ObservableFloat.__name__ = true;
+model_core_lib_ObservableFloat.__name__ = ["model","core","lib","ObservableFloat"];
 model_core_lib_ObservableFloat.__super__ = model_core_lib_ObservableValue;
 model_core_lib_ObservableFloat.prototype = $extend(model_core_lib_ObservableValue.prototype,{
 	addValue: function(value) {
@@ -531,7 +589,7 @@ var model_core_HitPoint = function(value) {
 	model_core_lib_ObservableFloat.call(this,value);
 	if(value == null) this._isRigid = true;
 };
-model_core_HitPoint.__name__ = true;
+model_core_HitPoint.__name__ = ["model","core","HitPoint"];
 model_core_HitPoint.__super__ = model_core_lib_ObservableFloat;
 model_core_HitPoint.prototype = $extend(model_core_lib_ObservableFloat.prototype,{
 	isRigid: function() {
@@ -551,7 +609,7 @@ var model_core_Position = function(x,y) {
 	this.x = x;
 	this.y = y;
 };
-model_core_Position.__name__ = true;
+model_core_Position.__name__ = ["model","core","Position"];
 model_core_Position.zero = function() {
 	return new model_core_Position();
 };
@@ -559,13 +617,25 @@ model_core_Position.prototype = {
 	distanceTo: function(other) {
 		return Math.sqrt(Math.pow(this.x - other.x,2) + Math.pow(this.y - other.y,2));
 	}
+	,vectorTo: function(other) {
+		return new model_core_Position(other.x - this.x,other.y - this.y);
+	}
+	,multipl: function(v) {
+		return new model_core_Position(this.x * v,this.y * v);
+	}
+	,divide: function(v) {
+		return new model_core_Position(this.x / v,this.y / v);
+	}
+	,directionTo: function(other) {
+		return this.vectorTo(other).divide(this.distanceTo(other));
+	}
 	,__class__: model_core_Position
 };
 var model_core_LinearMovablePosition = function(x,y,step) {
 	model_core_Position.call(this,x,y);
 	this._step = step;
 };
-model_core_LinearMovablePosition.__name__ = true;
+model_core_LinearMovablePosition.__name__ = ["model","core","LinearMovablePosition"];
 model_core_LinearMovablePosition.__interfaces__ = [model_core_Step];
 model_core_LinearMovablePosition.linear = function(defaultPosition,diff) {
 	return new model_core_LinearMovablePosition(defaultPosition.x,defaultPosition.y,function(pos) {
@@ -584,7 +654,7 @@ var model_core_LinearMoveCollision = function(params,pos) {
 	model_core_Collision.call(this,params,pos);
 	this.movablePos = pos;
 };
-model_core_LinearMoveCollision.__name__ = true;
+model_core_LinearMoveCollision.__name__ = ["model","core","LinearMoveCollision"];
 model_core_LinearMoveCollision.__super__ = model_core_Collision;
 model_core_LinearMoveCollision.prototype = $extend(model_core_Collision.prototype,{
 	step: function() {
@@ -592,10 +662,36 @@ model_core_LinearMoveCollision.prototype = $extend(model_core_Collision.prototyp
 	}
 	,__class__: model_core_LinearMoveCollision
 });
+var model_core_TimelineStage = function(timeline) {
+	this.frameFromLastEvent = 0;
+	this.timeline = timeline;
+	this.nextEvent = timeline.shift();
+};
+model_core_TimelineStage.__name__ = ["model","core","TimelineStage"];
+model_core_TimelineStage.__interfaces__ = [model_core_Step];
+model_core_TimelineStage.prototype = {
+	step: function() {
+		if(this.nextEvent != null && this.frameFromLastEvent >= this.nextEvent.eventFrameFromLastEvent && Main.collisions.players.length() > 0) {
+			this.nextEvent.eventTask();
+			this.nextEvent = this.timeline.shift();
+			this.frameFromLastEvent = 0;
+		}
+		this.frameFromLastEvent++;
+	}
+	,__class__: model_core_TimelineStage
+};
+var model_core_TimelineEvent = function(eventFrameFromLastEvent,eventTask) {
+	this.eventFrameFromLastEvent = eventFrameFromLastEvent;
+	this.eventTask = eventTask;
+};
+model_core_TimelineEvent.__name__ = ["model","core","TimelineEvent"];
+model_core_TimelineEvent.prototype = {
+	__class__: model_core_TimelineEvent
+};
 var model_core_lib_ArrayObserver = function(ary) {
 	this.ary = ary;
 };
-model_core_lib_ArrayObserver.__name__ = true;
+model_core_lib_ArrayObserver.__name__ = ["model","core","lib","ArrayObserver"];
 model_core_lib_ArrayObserver.prototype = {
 	setObserver: function(onCreateListener,onDestoryListener) {
 		this.onCreateListener = onCreateListener;
@@ -615,17 +711,23 @@ model_core_lib_ArrayObserver.prototype = {
 	,remove: function(o) {
 		if(HxOverrides.remove(this.ary,o)) this.onDestoryListener(o);
 	}
+	,length: function() {
+		return this.ary.length;
+	}
 	,iterator: function() {
 		return HxOverrides.iter(this.ary);
+	}
+	,get: function(index) {
+		return this.ary[index];
 	}
 	,__class__: model_core_lib_ArrayObserver
 };
 var model_core_shape_Shape = function() { };
-model_core_shape_Shape.__name__ = true;
+model_core_shape_Shape.__name__ = ["model","core","shape","Shape"];
 var model_core_shape_Circle = $hx_exports.model.core.shape.Circle = function(r) {
 	this.radius = r;
 };
-model_core_shape_Circle.__name__ = true;
+model_core_shape_Circle.__name__ = ["model","core","shape","Circle"];
 model_core_shape_Circle.__interfaces__ = [model_core_shape_Shape];
 model_core_shape_Circle.prototype = {
 	get_pos: function() {
@@ -633,11 +735,14 @@ model_core_shape_Circle.prototype = {
 	}
 	,__class__: model_core_shape_Circle
 };
-var model_domain_Player = $hx_exports.model.domain.Player = function(params,pos) {
-	this.speed = 1;
+var model_domain_Player = $hx_exports.model.domain.Player = function(pos) {
+	this.speed = 3;
+	var params = model_core_CollisionParams.circle({ r : 8, hp : 50, ap : 20, tagName : model_domain_TagName.player});
 	model_core_Collision.call(this,params,pos);
+	this.registerHitPoint(function(before,afterFloat) {
+	});
 };
-model_domain_Player.__name__ = true;
+model_domain_Player.__name__ = ["model","domain","Player"];
 model_domain_Player.__super__ = model_core_Collision;
 model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	step: function() {
@@ -655,17 +760,125 @@ model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 		this.pos.x = this.pos.x - this.speed;
 	}
 	,shot: function() {
-		var shotSpeed = 3;
-		var pos = model_core_Position.zero();
-		pos.y = -shotSpeed;
+		if(Main.collisions.shots.length() >= 10) return;
 		var shotPos = model_core_LinearMovablePosition.linear(this.pos,new model_core_Position(0,-3));
-		var shot = new model_core_LinearMoveCollision(model_core_CollisionParams.circle({ r : 2, hp : 1, ap : 10, tag : model_domain_TagName.shot}),shotPos);
-		Main.collisions.shots.push(shot);
+		var shot = model_domain_shot_WeekShot.create(new model_core_Position(this.pos.x,this.pos.y - 8));
+		if(shot != null) Main.collisions.shots.push(shot);
 	}
 	,__class__: model_domain_Player
 });
+var model_domain_Stage = function() {
+	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(280)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
+};
+model_domain_Stage.__name__ = ["model","domain","Stage"];
+model_domain_Stage.__interfaces__ = [model_core_Step];
+model_domain_Stage.prototype = {
+	step: function() {
+	}
+	,push: function(enemies) {
+		var _g = 0;
+		while(_g < enemies.length) {
+			var e = enemies[_g];
+			++_g;
+			Main.collisions.enemies.push(e);
+		}
+	}
+	,dashOneself: function(orgx) {
+		var _g = this;
+		return function() {
+			var result = [];
+			var _g1 = 0;
+			while(_g1 < 5) {
+				var i = _g1++;
+				result.push(new model_domain_enemy_DashToPlayerEnemy(new model_core_Position(orgx,-20 * i - 8),new model_core_Tag(model_domain_TagName.enemy),{ }));
+			}
+			_g.push(result);
+		};
+	}
+	,straighatAndShot: function(orgx) {
+		var _g1 = this;
+		return function() {
+			var result = [];
+			var d;
+			if(orgx < model_domain_WorldStatus.WIDTH / 2) d = -1; else d = 1;
+			var _g = 0;
+			while(_g < 5) {
+				var i = _g++;
+				var collision = new model_domain_enemy_StraightAndShotEnemy(new model_core_Position(orgx + 15 * i * d,-i * 5));
+				_g1.createItemWhenEnemyDead(collision);
+				result.push(collision);
+			}
+			_g1.push(result);
+		};
+	}
+	,createItemWhenEnemyDead: function(collision) {
+		collision.registerDead(function(_,after) {
+			if(after) {
+				var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
+				var speed = new model_core_Position(0,-5);
+				var c = model_core_GravityCollision.create(params,collision.pos,speed);
+				Main.collisions.items.push(c);
+			}
+		});
+	}
+	,__class__: model_domain_Stage
+};
 var model_domain_TagName = $hx_exports.model.domain.TagName = function() { };
-model_domain_TagName.__name__ = true;
+model_domain_TagName.__name__ = ["model","domain","TagName"];
+var model_domain_WorldStatus = function() { };
+model_domain_WorldStatus.__name__ = ["model","domain","WorldStatus"];
+var model_domain_enemy_DashToPlayerEnemy = function(orgPosition,tag,options) {
+	var speed;
+	if(options.speed != null) speed = options.speed; else speed = 3;
+	var radius;
+	if(options.radius != null) radius = options.radius; else radius = 8;
+	var ap;
+	if(options.ap != null) ap = options.ap; else ap = 10;
+	var direction = Main.getPlayerDirectionFrom(orgPosition).multipl(speed);
+	var movePos = model_core_LinearMovablePosition.linear(orgPosition,direction);
+	model_core_LinearMoveCollision.call(this,model_core_CollisionParams.circle({ r : radius, hp : 1, ap : ap, tag : tag}),movePos);
+};
+model_domain_enemy_DashToPlayerEnemy.__name__ = ["model","domain","enemy","DashToPlayerEnemy"];
+model_domain_enemy_DashToPlayerEnemy.__super__ = model_core_LinearMoveCollision;
+model_domain_enemy_DashToPlayerEnemy.prototype = $extend(model_core_LinearMoveCollision.prototype,{
+	__class__: model_domain_enemy_DashToPlayerEnemy
+});
+var model_domain_enemy_StraightAndShotEnemy = function(orgPosition,speed) {
+	if(speed == null) speed = 3;
+	this.frame = 0;
+	var x;
+	if(orgPosition.x < model_domain_WorldStatus.WIDTH / 2) x = 1; else x = -1;
+	var direction = new model_core_Position(x,0.5).multipl(speed);
+	var movePos = model_core_LinearMovablePosition.linear(orgPosition,direction);
+	model_core_LinearMoveCollision.call(this,model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 10, tagNames : [model_domain_TagName.enemy,Type.getClassName(js_Boot.getClass(this))]}),movePos);
+};
+model_domain_enemy_StraightAndShotEnemy.__name__ = ["model","domain","enemy","StraightAndShotEnemy"];
+model_domain_enemy_StraightAndShotEnemy.__super__ = model_core_LinearMoveCollision;
+model_domain_enemy_StraightAndShotEnemy.prototype = $extend(model_core_LinearMoveCollision.prototype,{
+	step: function() {
+		model_core_LinearMoveCollision.prototype.step.call(this);
+		if(this.frame == 100) Main.collisions.enemyShots.push(new model_domain_enemy_DashToPlayerEnemy(this.pos,new model_core_Tag(model_domain_TagName.enemyshot),{ radius : 2}));
+		this.frame++;
+	}
+	,__class__: model_domain_enemy_StraightAndShotEnemy
+});
+var model_domain_shot_WeekShot = function(playerPos) {
+	var shotPos = model_core_LinearMovablePosition.linear(playerPos,new model_core_Position(0,-model_domain_shot_WeekShot.SPEED));
+	model_core_LinearMoveCollision.call(this,model_core_CollisionParams.circle({ r : model_domain_shot_WeekShot.RADIUS, hp : model_domain_shot_WeekShot.HP, ap : model_domain_shot_WeekShot.AP, tagName : model_domain_TagName.shot}),shotPos);
+};
+model_domain_shot_WeekShot.__name__ = ["model","domain","shot","WeekShot"];
+model_domain_shot_WeekShot.create = function(playerPos) {
+	if(Main.collisions.shots.length() >= 10) return null;
+	return new model_domain_shot_WeekShot(playerPos);
+};
+model_domain_shot_WeekShot.__super__ = model_core_LinearMoveCollision;
+model_domain_shot_WeekShot.prototype = $extend(model_core_LinearMoveCollision.prototype,{
+	step: function() {
+		model_core_LinearMoveCollision.prototype.step.call(this);
+		if(this.pos.y < -10) this.status.terminated = true;
+	}
+	,__class__: model_domain_shot_WeekShot
+});
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
@@ -673,8 +886,8 @@ if(Array.prototype.indexOf) HxOverrides.indexOf = function(a,o,i) {
 	return Array.prototype.indexOf.call(a,o,i);
 };
 String.prototype.__class__ = String;
-String.__name__ = true;
-Array.__name__ = true;
+String.__name__ = ["String"];
+Array.__name__ = ["Array"];
 var Int = { __name__ : ["Int"]};
 var Dynamic = { __name__ : ["Dynamic"]};
 var Float = Number;
@@ -687,10 +900,22 @@ var __map_reserved = {}
 Main.collisions = new model_domain_SimpleCollisions();
 js_Boot.__toStr = {}.toString;
 model_core_CollisionIdentifier.idCount = 0;
+model_core_GravityCollision.DOWN = 0;
+model_core_GravityCollision.UP = 1;
+model_core_GravityCollision.RIGHT = 2;
+model_core_GravityCollision.LEFT = 3;
+model_domain_Stage.FPS = 30;
 model_domain_TagName.player = "player";
 model_domain_TagName.shot = "shot";
 model_domain_TagName.item = "item";
 model_domain_TagName.enemy = "enemy";
 model_domain_TagName.enemyshot = "enemyshot";
+model_domain_WorldStatus.FPS = 30;
+model_domain_WorldStatus.WIDTH = 320;
+model_domain_WorldStatus.HEIGHT = 320;
+model_domain_shot_WeekShot.SPEED = 5;
+model_domain_shot_WeekShot.RADIUS = 2;
+model_domain_shot_WeekShot.HP = 1;
+model_domain_shot_WeekShot.AP = 10;
 Main.main();
 })(typeof console != "undefined" ? console : {log:function(){}}, typeof window != "undefined" ? window : exports);
