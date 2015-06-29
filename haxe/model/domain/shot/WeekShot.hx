@@ -21,8 +21,15 @@ class WeekShot extends SteppablePositionCollision {
         if (pos.y < -10) status.terminated = true;
     }
 
-    public static function create(playerPos:Position):Collision {
+    public static function create(playerPos:Position):Array<Collision> {
         if (Main.collisions.shots.length() >= 10) return null;
-        return new WeekShot(playerPos);
+        return [new WeekShot(playerPos)];
+    }
+
+    public static function createDoubleShots(playerPos:Position):Array<Collision> {
+        if (Main.collisions.shots.length() >= 10) return null;
+        var left = new Position(playerPos.x - 4, playerPos.y);
+        var right = new Position(playerPos.x + 4, playerPos.y);
+        return [new WeekShot(left), new WeekShot(right)];
     }
 }

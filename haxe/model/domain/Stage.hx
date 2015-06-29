@@ -1,5 +1,6 @@
 package model.domain;
 
+import model.domain.shot.WeekShot;
 import model.core.GravityPositionStep;
 import model.core.SteppablePositionCollision;
 import model.core.TimelineStage.TimelineEvent;
@@ -62,12 +63,34 @@ class Stage implements Step {
     function createItemWhenEnemyDead(collision:Collision) {
         collision.registerDead(function(_, after:Bool) {
             if (after) {
-                var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
-                var speed = new Position(0, -5);
-                var pos = GravityPositionStep.createPosition(collision.pos, speed);
-                var c = new SteppablePositionCollision(params, pos);
-                Main.collisions.items.push(c);
+//                var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
+//                var speed = new Position(0, -5);
+//                var pos = GravityPositionStep.createPosition(collision.pos, speed);
+//                var c = new SteppablePositionCollision(params, pos);
+//                c.registerDead(function(_, isDead:Bool) {
+//// itemが死んだら、プレイヤーのショットがパワーアップ
+//                    if (isDead) {
+//                        var player:Player = cast(Main.collisions.players.get(0), Player);
+//                        player.createShots = WeekShot.createDoubleShots;
+//                    }
+//                });
+                Main.collisions.items.push(createItem(collision.pos));
             }
         });
+    }
+
+    function createItem(orgPos:Position):Collision {
+        var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
+        var speed = new Position(0, -5);
+        var pos = GravityPositionStep.createPosition(orgPos, speed);
+        var c = new SteppablePositionCollision(params, pos);
+        c.registerDead(function(_, isDead:Bool) {
+// itemが死んだら、プレイヤーのショットがパワーアップ
+            if (isDead) {
+                var player:Player = cast(Main.collisions.players.get(0), Player);
+                player.createShots = WeekShot.createDoubleShots;
+            }
+        });
+        return c;
     }
 }

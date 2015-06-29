@@ -708,6 +708,14 @@ model_core_lib_ArrayObserver.prototype = {
 		this.ary.push(o);
 		this.onCreateListener(o);
 	}
+	,pushAll: function(os) {
+		var _g = 0;
+		while(_g < os.length) {
+			var o = os[_g];
+			++_g;
+			this.push(o);
+		}
+	}
 	,remove: function(o) {
 		if(HxOverrides.remove(this.ary,o)) this.onDestoryListener(o);
 	}
@@ -736,6 +744,7 @@ model_core_shape_Circle.prototype = {
 	,__class__: model_core_shape_Circle
 };
 var model_domain_Player = $hx_exports.model.domain.Player = function(pos) {
+	this.createShots = model_domain_shot_WeekShot.create;
 	this.speed = 3;
 	var params = model_core_CollisionParams.circle({ r : 8, hp : 50, ap : 20, tagName : model_domain_TagName.player});
 	model_core_Collision.call(this,params,pos);
@@ -760,15 +769,13 @@ model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 		this.pos.x = this.pos.x - this.speed;
 	}
 	,shot: function() {
-		if(Main.collisions.shots.length() >= 10) return;
-		var shotPos = model_core_SteppablePosition.linear(this.pos,new model_core_Position(0,-3));
-		var shot = model_domain_shot_WeekShot.create(new model_core_Position(this.pos.x,this.pos.y - 8));
-		if(shot != null) Main.collisions.shots.push(shot);
+		var shots = this.createShots(new model_core_Position(this.pos.x,this.pos.y - 8));
+		if(shots != null) Main.collisions.shots.pushAll(shots);
 	}
 	,__class__: model_domain_Player
 });
 var model_domain_Stage = function() {
-	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(280)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
+	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
 };
 model_domain_Stage.__name__ = ["model","domain","Stage"];
 model_domain_Stage.__interfaces__ = [model_core_Step];
@@ -812,15 +819,24 @@ model_domain_Stage.prototype = {
 		};
 	}
 	,createItemWhenEnemyDead: function(collision) {
+		var _g = this;
 		collision.registerDead(function(_,after) {
-			if(after) {
-				var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
-				var speed = new model_core_Position(0,-5);
-				var pos = model_core_GravityPositionStep.createPosition(collision.pos,speed);
-				var c = new model_core_SteppablePositionCollision(params,pos);
-				Main.collisions.items.push(c);
+			if(after) Main.collisions.items.push(_g.createItem(collision.pos));
+		});
+	}
+	,createItem: function(orgPos) {
+		var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
+		var speed = new model_core_Position(0,-5);
+		var pos = model_core_GravityPositionStep.createPosition(orgPos,speed);
+		var c = new model_core_SteppablePositionCollision(params,pos);
+		c.registerDead(function(_,isDead) {
+			if(isDead) {
+				var player;
+				player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
+				player.createShots = model_domain_shot_WeekShot.createDoubleShots;
 			}
 		});
+		return c;
 	}
 	,__class__: model_domain_Stage
 };
@@ -870,7 +886,13 @@ var model_domain_shot_WeekShot = function(playerPos) {
 model_domain_shot_WeekShot.__name__ = ["model","domain","shot","WeekShot"];
 model_domain_shot_WeekShot.create = function(playerPos) {
 	if(Main.collisions.shots.length() >= 10) return null;
-	return new model_domain_shot_WeekShot(playerPos);
+	return [new model_domain_shot_WeekShot(playerPos)];
+};
+model_domain_shot_WeekShot.createDoubleShots = function(playerPos) {
+	if(Main.collisions.shots.length() >= 10) return null;
+	var left = new model_core_Position(playerPos.x - 4,playerPos.y);
+	var right = new model_core_Position(playerPos.x + 4,playerPos.y);
+	return [new model_domain_shot_WeekShot(left),new model_domain_shot_WeekShot(right)];
 };
 model_domain_shot_WeekShot.__super__ = model_core_SteppablePositionCollision;
 model_domain_shot_WeekShot.prototype = $extend(model_core_SteppablePositionCollision.prototype,{

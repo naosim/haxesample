@@ -24,6 +24,10 @@ class ArrayObserver<T> {
         onCreateListener(o);
     }
 
+    public function pushAll(os:Array<T>) {
+        for (o in os) push(o);
+    }
+
     public function remove(o:T) {
         if (ary.remove(o)) {
             onDestoryListener(o);

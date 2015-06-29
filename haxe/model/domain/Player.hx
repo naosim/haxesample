@@ -1,7 +1,6 @@
 package model.domain;
 
 import model.domain.shot.WeekShot;
-import model.core.SteppablePosition;
 import model.core.Position;
 import model.core.Collision;
 import model.core.Collision.CollisionParams;
@@ -40,9 +39,9 @@ class Player extends Collision {
     }
 
     public function shot() {
-        if (Main.collisions.shots.length() >= 10) return;
-        var shotPos = SteppablePosition.linear(this.pos, new Position(0, -3));
-        var shot = WeekShot.create(new Position(this.pos.x, this.pos.y - 8));
-        if (shot != null) Main.collisions.shots.push(shot);
+        var shots = createShots(new Position(this.pos.x, this.pos.y - 8));
+        if (shots != null) Main.collisions.shots.pushAll(shots);
     }
+
+    public var createShots:Position -> Array<Collision> = WeekShot.create;
 }
