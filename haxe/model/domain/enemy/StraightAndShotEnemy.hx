@@ -8,7 +8,7 @@ import model.core.SteppablePositionCollision;
 
 // まっすぐ飛んで、途中で玉を打つ
 class StraightAndShotEnemy extends SteppablePositionCollision {
-    public function new(orgPosition: Position, speed:Float = 3) {
+    public function new(orgPosition:Position, speed:Float = 3) {
         var x = orgPosition.x < WorldStatus.WIDTH / 2 ? 1 : -1;// 左右のどっちに進むか
         var direction = new Position(x, 0.5).multipl(speed);
         var movePos = SteppablePosition.linear(orgPosition, direction);
@@ -16,9 +16,10 @@ class StraightAndShotEnemy extends SteppablePositionCollision {
     }
 
     var frame = 0;
+
     public override function step() {
         super.step();
-        if(frame == 100) {
+        if (frame == 100) {
             Main.collisions.enemyShots.push(new DashToPlayerEnemy(pos, new Tag(TagName.enemyshot), {radius: 2}));
         }
 

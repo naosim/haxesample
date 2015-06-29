@@ -7,7 +7,7 @@ import model.core.SteppablePositionCollision;
 
 // プレイヤーに向かってまっすぐ飛んでくる
 class DashToPlayerEnemy extends SteppablePositionCollision {
-    public function new(orgPosition: Position, tag:Tag, options:{?speed:Float, ?radius:Int, ?ap:Int}) {
+    public function new(orgPosition:Position, tag:Tag, options:{?speed:Float, ?radius:Int, ?ap:Int}) {
         var speed = options.speed != null ? options.speed : 3;
         var radius = options.radius != null ? options.radius : 8;
         var ap = options.ap != null ? options.ap : 10;

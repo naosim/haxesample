@@ -10,7 +10,7 @@ class Collision implements Step implements Terminatable {
     public var status:CollisionStatus;
     public var identifier:CollisionIdentifier;
 
-    public function new(params: CollisionParams, ?pos: Position) {
+    public function new(params:CollisionParams, ?pos:Position) {
         this.pos = pos != null ? pos : Position.zero();
         this.shape = params.shape;
         this.status = params.status;
@@ -22,7 +22,7 @@ class Collision implements Step implements Terminatable {
     }
 
     public function step() {
-        // implements subclass
+// implements subclass
     }
 
     public function isDead():Bool {
@@ -33,26 +33,28 @@ class Collision implements Step implements Terminatable {
         return identifier.hasTag(tag);
     }
 
-    public function registerHitPoint(l: Float -> Float -> Void) {
+    public function registerHitPoint(l:Float -> Float -> Void) {
         status.registerHitPoint(l);
     }
-    public function unregisterHitPoint(l: Float -> Float -> Void) {
+
+    public function unregisterHitPoint(l:Float -> Float -> Void) {
         status.unregisterHitPoint(l);
     }
 
-    public function registerDead(l: Bool -> Bool -> Void) {
+    public function registerDead(l:Bool -> Bool -> Void) {
         status.registerDead(l);
     }
-    public function unregisterDead(l: Bool -> Bool -> Void) {
+
+    public function unregisterDead(l:Bool -> Bool -> Void) {
         status.unregisterDead(l);
     }
 
-    public function terminate(): Void {
+    public function terminate():Void {
         status.terminate();
     }
 }
 
- class CollisionParams {
+class CollisionParams {
     public var shape:Shape;
     public var status:CollisionStatus;
     public var identifier:CollisionIdentifier;
@@ -66,7 +68,7 @@ class Collision implements Step implements Terminatable {
         this.identifier = identifier;
     }
 
-    public static function circle(params:{r:Int, hp:Int, ap:Int, ?tagName: String, ?tagNames: Array<String>, ?tag:Tag}): CollisionParams {
+    public static function circle(params:{r:Int, hp:Int, ap:Int, ?tagName:String, ?tagNames:Array<String>, ?tag:Tag}):CollisionParams {
         var c = new Circle(params.r);
         var status = new CollisionStatus(new HitPoint(params.hp), params.ap);
         var identifier = params.tag != null ? new CollisionIdentifier(params.tag) : CollisionIdentifier.withTag(params.tagName, params.tagNames);

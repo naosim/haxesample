@@ -1,8 +1,6 @@
 package model.domain;
 
 import model.core.GravityPositionStep;
-import model.core.GravityCollision;
-import model.core.SteppablePosition;
 import model.core.SteppablePositionCollision;
 import model.core.TimelineStage.TimelineEvent;
 import model.core.CollisionIdentifier.Tag;
@@ -13,14 +11,14 @@ import model.core.Collision;
 import model.core.Position;
 import model.core.Step;
 class Stage implements Step {
-    // 2分間のゲームなら
-    // 2[min] * 60[sec] * 30[fps]
-    // -> 3600フレーム
+// 2分間のゲームなら
+// 2[min] * 60[sec] * 30[fps]
+// -> 3600フレーム
     static var FPS = 30;
 
-    public var timelineEvent: Array<TimelineEvent>;
+    public var timelineEvent:Array<TimelineEvent>;
 
-    public function new(){
+    public function new() {
         timelineEvent = [
             new TimelineEvent(3 * FPS, this.dashOneself(50)),
             new TimelineEvent(3 * FPS, this.dashOneself(280)),
@@ -35,25 +33,25 @@ class Stage implements Step {
     }
 
     function push(enemies:Array<Collision>) {
-        for(e in enemies) Main.collisions.enemies.push(e);
+        for (e in enemies) Main.collisions.enemies.push(e);
     }
 
-    function dashOneself(orgx: Float): Void -> Void {
-        return function(): Void {
+    function dashOneself(orgx:Float):Void -> Void {
+        return function():Void {
             var result:Array<Collision> = [];
-            for(i in 0...5) {
+            for (i in 0...5) {
                 result.push(new DashToPlayerEnemy(new Position(orgx, -20 * i - 8), new Tag(TagName.enemy), {}));
             }
             push(result);
         }
     }
 
-    function straighatAndShot(orgx: Float): Void -> Void {
-        return function(): Void {
+    function straighatAndShot(orgx:Float):Void -> Void {
+        return function():Void {
             var result:Array<Collision> = [];
             var d = orgx < WorldStatus.WIDTH / 2 ? -1 : 1;
-            for(i in 0...5) {
-                var collision = new StraightAndShotEnemy(new Position(orgx + 15 * i * d, - i * 5));
+            for (i in 0...5) {
+                var collision = new StraightAndShotEnemy(new Position(orgx + 15 * i * d, -i * 5));
                 createItemWhenEnemyDead(collision);
                 result.push(collision);
             }
@@ -63,7 +61,7 @@ class Stage implements Step {
 
     function createItemWhenEnemyDead(collision:Collision) {
         collision.registerDead(function(_, after:Bool) {
-            if(after) {
+            if (after) {
                 var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
                 var speed = new Position(0, -5);
                 var pos = GravityPositionStep.createPosition(collision.pos, speed);

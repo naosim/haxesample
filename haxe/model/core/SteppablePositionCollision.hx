@@ -5,7 +5,7 @@ import model.core.SteppablePosition;
 class SteppablePositionCollision extends Collision {
     var movablePos:SteppablePosition;
 
-    public function new(params: CollisionParams, pos:SteppablePosition) {
+    public function new(params:CollisionParams, pos:SteppablePosition) {
         super(params, pos);
         this.movablePos = pos;
     }

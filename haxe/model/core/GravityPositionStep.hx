@@ -1,5 +1,4 @@
 package model.core;
-import model.core.Collision;
 import model.core.Position;
 class GravityPositionStep {
     var speed:Position;
@@ -21,16 +20,17 @@ class GravityPositionStep {
     public static var UP = 1;
     public static var RIGHT = 2;
     public static var LEFT = 3;
+
     public static function create(speed:Position, ?gravity:Position, ?gravityDirection:Int):GravityPositionStep {
-        if(gravity == null) {
-            if(gravityDirection == null) gravityDirection = DOWN;
-            if(gravityDirection == DOWN) {
+        if (gravity == null) {
+            if (gravityDirection == null) gravityDirection = DOWN;
+            if (gravityDirection == DOWN) {
                 gravity = new Position(0, 0.3);
-            } else if(gravityDirection == UP) {
+            } else if (gravityDirection == UP) {
                 gravity = new Position(0, -0.3);
-            } else if(gravityDirection == RIGHT) {
+            } else if (gravityDirection == RIGHT) {
                 gravity = new Position(0.3, 0);
-            } else if(gravityDirection == LEFT) {
+            } else if (gravityDirection == LEFT) {
                 gravity = new Position(-0.3, 0);
             }
         }
@@ -39,6 +39,6 @@ class GravityPositionStep {
     }
 
     public static function createPosition(orgPosition:Position, speed:Position, ?gravity:Position, ?gravityDirection:Int) {
-        return new SteppablePosition(orgPosition.x, orgPosition.y, create(speed, gravity,gravityDirection).step);
+        return new SteppablePosition(orgPosition.x, orgPosition.y, create(speed, gravity, gravityDirection).step);
     }
 }

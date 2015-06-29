@@ -18,11 +18,11 @@ class WeekShot extends SteppablePositionCollision {
 
     public override function step() {
         super.step();
-        if(pos.y < -10) status.terminated = true;
+        if (pos.y < -10) status.terminated = true;
     }
 
-    public static function create(playerPos:Position): Collision {
-        if(Main.collisions.shots.length() >= 10) return null;
+    public static function create(playerPos:Position):Collision {
+        if (Main.collisions.shots.length() >= 10) return null;
         return new WeekShot(playerPos);
     }
 }

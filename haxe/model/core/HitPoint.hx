@@ -6,7 +6,7 @@ class HitPoint extends ObservableFloat {
 
     public function new(value:Int = null) {
         super(value);
-        if(value == null) _isRigid = true;
+        if (value == null) _isRigid = true;
     }
 
     public function isRigid():Bool {

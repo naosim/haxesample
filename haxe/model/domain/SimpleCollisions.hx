@@ -13,7 +13,7 @@ class SimpleCollisions implements EachHitCollision {
 
     private var all:Array<ArrayObserver<Collision>>;
 
-    private static function collisionArray(): ArrayObserver<Collision> {
+    private static function collisionArray():ArrayObserver<Collision> {
         return new ArrayObserver<Collision>(new Array<Collision>());
     }
 

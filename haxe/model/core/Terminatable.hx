@@ -1,4 +1,4 @@
 package model.core;
 interface Terminatable {
-    public function terminate(): Void;
+    public function terminate():Void;
 }
