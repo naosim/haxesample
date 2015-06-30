@@ -761,7 +761,7 @@ model_core_shape_Circle.prototype = {
 var model_domain_Player = $hx_exports.model.domain.Player = function(pos) {
 	this.createShots = model_domain_shot_WeekShot.create;
 	this.speed = 3;
-	var params = model_core_CollisionParams.circle({ r : 8, hp : 50, ap : 20, tagName : model_domain_TagName.player});
+	var params = model_core_CollisionParams.circle({ r : 8, hp : model_domain_Player.MAX_LIFE, ap : 20, tagName : model_domain_TagName.player});
 	model_core_Collision.call(this,params,pos);
 	this.registerHitPoint(function(before,afterFloat) {
 	});
@@ -786,6 +786,10 @@ model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	,shot: function() {
 		var shots = this.createShots(new model_core_Position(this.pos.x,this.pos.y - 8));
 		if(shots != null) Main.collisions.shots.pushAll(shots);
+	}
+	,lifeUp: function(value) {
+		value = Math.min(this.status.hitPoint.getValue() + value,model_domain_Player.MAX_LIFE);
+		this.status.hitPoint.setValue(value);
 	}
 	,__class__: model_domain_Player
 });
@@ -891,7 +895,7 @@ model_domain_item_ItemFactory.create = function(orgPos,itemType) {
 		var $r;
 		switch(itemType[1]) {
 		case 0:
-			$r = model_domain_item_ItemFactory.createDoubleShotItem;
+			$r = model_domain_item_ItemFactory.createLifeUpItem;
 			break;
 		case 1:
 			$r = model_domain_item_ItemFactory.createDoubleShotItem;
@@ -900,7 +904,7 @@ model_domain_item_ItemFactory.create = function(orgPos,itemType) {
 		return $r;
 	}(this)))(orgPos);
 };
-model_domain_item_ItemFactory.createItem = function(orgPos,onDeadItem) {
+model_domain_item_ItemFactory.createItem = function(orgPos,tag,onDeadItem) {
 	var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
 	var speed = new model_core_Position(0,-5);
 	var pos = model_core_GravityPositionStep.createPosition(orgPos,speed);
@@ -909,10 +913,17 @@ model_domain_item_ItemFactory.createItem = function(orgPos,onDeadItem) {
 	return c;
 };
 model_domain_item_ItemFactory.createDoubleShotItem = function(orgPos) {
-	return model_domain_item_ItemFactory.createItem(orgPos,function() {
+	return model_domain_item_ItemFactory.createItem(orgPos,"doubleshot",function() {
 		var player;
 		player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
 		player.createShots = model_domain_shot_WeekShot.createDoubleShots;
+	});
+};
+model_domain_item_ItemFactory.createLifeUpItem = function(orgPos) {
+	return model_domain_item_ItemFactory.createItem(orgPos,"lifeup",function() {
+		var player;
+		player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
+		player.lifeUp(10);
 	});
 };
 model_domain_item_ItemFactory.prototype = {
@@ -973,6 +984,7 @@ model_core_GravityPositionStep.DOWN = 0;
 model_core_GravityPositionStep.UP = 1;
 model_core_GravityPositionStep.RIGHT = 2;
 model_core_GravityPositionStep.LEFT = 3;
+model_domain_Player.MAX_LIFE = 50;
 model_domain_Stage.FPS = 30;
 model_domain_TagName.player = "player";
 model_domain_TagName.shot = "shot";

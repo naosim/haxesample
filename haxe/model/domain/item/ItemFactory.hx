@@ -11,12 +11,12 @@ class ItemFactory {
 
     public static function create(orgPos:Position, itemType:ItemType):Collision {
         return (switch(itemType) {
-            case ItemType.doubleShot:createDoubleShotItem;
+            case ItemType.doubleShot:createLifeUpItem;
             case ItemType.lifeUp:createDoubleShotItem;
         })(orgPos);
     }
 
-    static function createItem(orgPos:Position, onDeadItem:Void -> Void):Collision {
+    static function createItem(orgPos:Position, tag:String, onDeadItem:Void -> Void):Collision {
         var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
         var speed = new Position(0, -5);
         var pos = GravityPositionStep.createPosition(orgPos, speed);
@@ -26,9 +26,16 @@ class ItemFactory {
     }
 
     static function createDoubleShotItem(orgPos:Position):Collision {
-        return createItem(orgPos, function() {
+        return createItem(orgPos, "doubleshot", function() {
             var player:Player = cast(Main.collisions.players.get(0), Player);
             player.createShots = WeekShot.createDoubleShots;
+        });
+    }
+
+    static function createLifeUpItem(orgPos:Position):Collision {
+        return createItem(orgPos, "lifeup", function() {
+            var player:Player = cast(Main.collisions.players.get(0), Player);
+            player.lifeUp(10);
         });
     }
 }
