@@ -21,9 +21,7 @@ class ItemFactory {
         var speed = new Position(0, -5);
         var pos = GravityPositionStep.createPosition(orgPos, speed);
         var c = new SteppablePositionCollision(params, pos);
-        c.registerDead(function(_, isDead:Bool) {
-            if (isDead) onDeadItem();
-        });
+        c.registerDead(onDeadItem);
         return c;
     }
 

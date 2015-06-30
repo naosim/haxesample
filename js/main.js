@@ -325,10 +325,23 @@ model_core_Step.prototype = {
 	__class__: model_core_Step
 };
 var model_core_Collision = function(params,pos) {
+	this.deadObserver = [];
+	var _g = this;
 	if(pos != null) this.pos = pos; else this.pos = model_core_Position.zero();
 	this.shape = params.shape;
 	this.status = params.status;
 	if(params.identifier != null) this.identifier = params.identifier; else this.identifier = new model_core_CollisionIdentifier();
+	this.status.registerDead(function(_,after) {
+		if(after) {
+			var _g1 = 0;
+			var _g2 = _g.deadObserver;
+			while(_g1 < _g2.length) {
+				var o = _g2[_g1];
+				++_g1;
+				o();
+			}
+		}
+	});
 };
 model_core_Collision.__name__ = ["model","core","Collision"];
 model_core_Collision.__interfaces__ = [model_core_Terminatable,model_core_Step];
@@ -350,14 +363,15 @@ model_core_Collision.prototype = {
 	,unregisterHitPoint: function(l) {
 		this.status.unregisterHitPoint(l);
 	}
-	,registerDead: function(l) {
-		this.status.registerDead(l);
+	,registerDead: function(o) {
+		this.deadObserver.push(o);
 	}
-	,unregisterDead: function(l) {
-		this.status.unregisterDead(l);
+	,unregisterDead: function(o) {
+		HxOverrides.remove(this.deadObserver,o);
 	}
 	,terminate: function() {
 		this.status.terminate();
+		this.deadObserver = [];
 	}
 	,__class__: model_core_Collision
 };
@@ -821,8 +835,8 @@ model_domain_Stage.prototype = {
 	}
 	,createItemWhenEnemyDead: function(collision) {
 		var _g = this;
-		collision.registerDead(function(_,after) {
-			if(after) Main.collisions.items.push(_g.createItem(collision.pos));
+		collision.registerDead(function() {
+			Main.collisions.items.push(_g.createItem(collision.pos));
 		});
 	}
 	,createItem: function(orgPos) {
@@ -891,9 +905,7 @@ model_domain_item_ItemFactory.createItem = function(orgPos,onDeadItem) {
 	var speed = new model_core_Position(0,-5);
 	var pos = model_core_GravityPositionStep.createPosition(orgPos,speed);
 	var c = new model_core_SteppablePositionCollision(params,pos);
-	c.registerDead(function(_,isDead) {
-		if(isDead) onDeadItem();
-	});
+	c.registerDead(onDeadItem);
 	return c;
 };
 model_domain_item_ItemFactory.createDoubleShotItem = function(orgPos) {

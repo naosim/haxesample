@@ -59,10 +59,8 @@ class Stage implements Step {
     }
 
     function createItemWhenEnemyDead(collision:Collision) {
-        collision.registerDead(function(_, after:Bool) {
-            if (after) {
-                Main.collisions.items.push(createItem(collision.pos));
-            }
+        collision.registerDead(function() {
+            Main.collisions.items.push(createItem(collision.pos));
         });
     }
 

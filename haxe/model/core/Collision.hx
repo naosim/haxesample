@@ -9,12 +9,16 @@ class Collision implements Step implements Terminatable {
     public var shape(default, null):Shape;
     public var status:CollisionStatus;
     public var identifier:CollisionIdentifier;
+    public var deadObserver:Array<Void -> Void> = [];
 
     public function new(params:CollisionParams, ?pos:Position) {
         this.pos = pos != null ? pos : Position.zero();
         this.shape = params.shape;
         this.status = params.status;
         this.identifier = params.identifier != null ? params.identifier : new CollisionIdentifier();
+        this.status.registerDead(function(_, after:Bool) {
+            if (after) for (o in deadObserver) o();
+        });
     }
 
     public function eachAttacked(other:Collision) {
@@ -41,16 +45,17 @@ class Collision implements Step implements Terminatable {
         status.unregisterHitPoint(l);
     }
 
-    public function registerDead(l:Bool -> Bool -> Void) {
-        status.registerDead(l);
+    public function registerDead(o:Void -> Void) {
+        deadObserver.push(o);
     }
 
-    public function unregisterDead(l:Bool -> Bool -> Void) {
-        status.unregisterDead(l);
+    public function unregisterDead(o:Void -> Void) {
+        deadObserver.remove(o);
     }
 
     public function terminate():Void {
         status.terminate();
+        deadObserver = [];
     }
 }
 
