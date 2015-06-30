@@ -1,6 +1,6 @@
 package model.core;
 
-class GameStepCore implements Step implements Terminatable {
+class StageStepCore implements Step implements Terminatable {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
     var stepListener:Void -> Void;

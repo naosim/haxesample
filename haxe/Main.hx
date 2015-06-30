@@ -6,7 +6,7 @@ import model.domain.Player;
 import model.core.Position;
 import model.core.Collision;
 import model.domain.SimpleCollisions;
-import model.core.GameStepCore;
+import model.core.StageStepCore;
 
 @:expose
 class Main {

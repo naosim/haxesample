@@ -21,7 +21,7 @@ class ItemFactory {
     }
 
     function createItem(orgPos:Position, tag:String, onDeadItem:Void -> Void):Collision {
-        var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
+        var params = CollisionParams.circle({r:8, hp:1, ap:0, tagNames: [TagName.item, tag] });
         var speed = new Position(0, -5);
         var pos = GravityPositionStep.createPosition(orgPos, speed);
         var c = new SteppablePositionCollision(params, pos);

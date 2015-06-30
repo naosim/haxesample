@@ -135,7 +135,7 @@ game.onload = function () {
             if (c.hasTag('shot') || c.hasTag('enemyshot')) showExplosion(c.pos);
             console.log("delete");
             // 念のため解放
-            c.sprite.playerCollision = null;
+//            if(c.sprite.playerCollision)c.sprite.playerCollision = null;
             c.sprite = null;
         });
 

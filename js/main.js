@@ -400,51 +400,6 @@ model_core_EachHitCollision.__name__ = ["model","core","EachHitCollision"];
 model_core_EachHitCollision.prototype = {
 	__class__: model_core_EachHitCollision
 };
-var model_core_GameStepCore = function(eachCollision,size,stepListener) {
-	this.eachCollision = eachCollision;
-	this.size = size;
-	if(stepListener != null) this.stepListener = stepListener; else this.stepListener = function() {
-	};
-};
-model_core_GameStepCore.__name__ = ["model","core","GameStepCore"];
-model_core_GameStepCore.__interfaces__ = [model_core_Terminatable,model_core_Step];
-model_core_GameStepCore.prototype = {
-	step: function() {
-		var _g = this;
-		this.stepListener();
-		this.eachCollision.eachCollision(function(c) {
-			c.step();
-		});
-		this.eachCollision.eachHitCollisionPair(function(c1,c2) {
-			if(model_core_CollisionHitTest.hitTest(c1,c2)) c1.eachAttacked(c2);
-		});
-		this.eachCollision.eachCollision(function(c3) {
-			if(_g.isOutOfWorld(c3)) c3.status.terminated = true;
-		});
-		var deads = [];
-		this.eachCollision.eachCollision(function(c4) {
-			if(c4.isDead()) deads.push(c4);
-		});
-		this.eachCollision.remove(deads);
-		var _g1 = 0;
-		while(_g1 < deads.length) {
-			var c5 = deads[_g1];
-			++_g1;
-			c5.terminate();
-		}
-	}
-	,isOutOfWorld: function(c) {
-		if(c.pos.x < -this.size.width || c.pos.x > this.size.width * 2) return true;
-		if(c.pos.y < -this.size.height || c.pos.y > this.size.height * 2) return true;
-		return false;
-	}
-	,terminate: function() {
-		this.eachCollision.eachCollision(function(c) {
-			c.terminate();
-		});
-	}
-	,__class__: model_core_GameStepCore
-};
 var model_core_GravityPositionStep = function(speed,gravity) {
 	this.speed = speed;
 	this.gravity = gravity;
@@ -561,6 +516,51 @@ model_core_Position.prototype = {
 		return this.vectorTo(other).divide(this.distanceTo(other));
 	}
 	,__class__: model_core_Position
+};
+var model_core_StageStepCore = function(eachCollision,size,stepListener) {
+	this.eachCollision = eachCollision;
+	this.size = size;
+	if(stepListener != null) this.stepListener = stepListener; else this.stepListener = function() {
+	};
+};
+model_core_StageStepCore.__name__ = ["model","core","StageStepCore"];
+model_core_StageStepCore.__interfaces__ = [model_core_Terminatable,model_core_Step];
+model_core_StageStepCore.prototype = {
+	step: function() {
+		var _g = this;
+		this.stepListener();
+		this.eachCollision.eachCollision(function(c) {
+			c.step();
+		});
+		this.eachCollision.eachHitCollisionPair(function(c1,c2) {
+			if(model_core_CollisionHitTest.hitTest(c1,c2)) c1.eachAttacked(c2);
+		});
+		this.eachCollision.eachCollision(function(c3) {
+			if(_g.isOutOfWorld(c3)) c3.status.terminated = true;
+		});
+		var deads = [];
+		this.eachCollision.eachCollision(function(c4) {
+			if(c4.isDead()) deads.push(c4);
+		});
+		this.eachCollision.remove(deads);
+		var _g1 = 0;
+		while(_g1 < deads.length) {
+			var c5 = deads[_g1];
+			++_g1;
+			c5.terminate();
+		}
+	}
+	,isOutOfWorld: function(c) {
+		if(c.pos.x < -this.size.width || c.pos.x > this.size.width * 2) return true;
+		if(c.pos.y < -this.size.height || c.pos.y > this.size.height * 2) return true;
+		return false;
+	}
+	,terminate: function() {
+		this.eachCollision.eachCollision(function(c) {
+			c.terminate();
+		});
+	}
+	,__class__: model_core_StageStepCore
 };
 var model_core_SteppablePosition = function(x,y,step) {
 	model_core_Position.call(this,x,y);
@@ -858,7 +858,7 @@ model_domain_StageModel.createStage1Model = function(size,onCreateListener,onDes
 model_domain_StageModel.prototype = {
 	setup: function(size,stage,onCreateListener,onDestoryListener) {
 		var timelineStage = new model_core_TimelineStage(stage.timelineEvent);
-		this.gameCore = new model_core_GameStepCore(this.collisions,size,$bind(timelineStage,timelineStage.step));
+		this.gameCore = new model_core_StageStepCore(this.collisions,size,$bind(timelineStage,timelineStage.step));
 		this.collisions.setObserver(onCreateListener,onDestoryListener);
 		this.addNewPlayer();
 		this.collisions.player().registerDead($bind(this,this.addNewPlayer));
@@ -932,7 +932,7 @@ model_domain_item_ItemFactory.prototype = {
 		return this.createItem(orgPos,Std.string(itemType),apply);
 	}
 	,createItem: function(orgPos,tag,onDeadItem) {
-		var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
+		var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagNames : [model_domain_TagName.item,tag]});
 		var speed = new model_core_Position(0,-5);
 		var pos = model_core_GravityPositionStep.createPosition(orgPos,speed);
 		var c = new model_core_SteppablePositionCollision(params,pos);

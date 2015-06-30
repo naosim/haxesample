@@ -2,13 +2,13 @@ package model.domain;
 import model.core.Position;
 import model.core.TimelineStage;
 import model.core.Collision;
-import model.core.GameStepCore;
+import model.core.StageStepCore;
 
 @:expose
 class StageModel {
     static public function main() {}
 
-    public var gameCore:GameStepCore;
+    public var gameCore:StageStepCore;
     public var collisions:SimpleCollisions = new SimpleCollisions();
 
     public function new() {
@@ -22,7 +22,7 @@ class StageModel {
     ) {
         var timelineStage = new TimelineStage(stage.timelineEvent);
 
-        gameCore = new GameStepCore(collisions, size, timelineStage.step);
+        gameCore = new StageStepCore(collisions, size, timelineStage.step);
 
         collisions.setObserver(onCreateListener, onDestoryListener);
         addNewPlayer();
