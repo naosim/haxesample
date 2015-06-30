@@ -37,91 +37,24 @@ HxOverrides.iter = function(a) {
 		return this.arr[this.cur++];
 	}};
 };
-var model_core_EachHitCollision = function() { };
-model_core_EachHitCollision.__name__ = ["model","core","EachHitCollision"];
-model_core_EachHitCollision.prototype = {
-	__class__: model_core_EachHitCollision
-};
-var model_domain_SimpleCollisions = function() {
-	this.enemyShots = model_domain_SimpleCollisions.collisionArray();
-	this.enemies = model_domain_SimpleCollisions.collisionArray();
-	this.shots = model_domain_SimpleCollisions.collisionArray();
-	this.items = model_domain_SimpleCollisions.collisionArray();
-	this.players = model_domain_SimpleCollisions.collisionArray();
-	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
-};
-model_domain_SimpleCollisions.__name__ = ["model","domain","SimpleCollisions"];
-model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
-model_domain_SimpleCollisions.collisionArray = function() {
-	return new model_core_lib_ArrayObserver([]);
-};
-model_domain_SimpleCollisions.prototype = {
-	setObserver: function(onCreateListener,onDestoryListener) {
-		var _g = 0;
-		var _g1 = this.all;
-		while(_g < _g1.length) {
-			var list = _g1[_g];
-			++_g;
-			list.setObserver(onCreateListener,onDestoryListener);
-		}
-	}
-	,eachHitCollisionPair: function(callback) {
-		this.eachHitCollisionPairWithList(this.players,this.items,callback);
-		this.eachHitCollisionPairWithList(this.players,this.enemies,callback);
-		this.eachHitCollisionPairWithList(this.players,this.enemyShots,callback);
-		this.eachHitCollisionPairWithList(this.shots,this.enemies,callback);
-	}
-	,eachHitCollisionPairWithList: function(ary1,ary2,callback) {
-		var $it0 = $iterator(ary1)();
-		while( $it0.hasNext() ) {
-			var c1 = $it0.next();
-			var $it1 = $iterator(ary2)();
-			while( $it1.hasNext() ) {
-				var c2 = $it1.next();
-				callback(c1,c2);
-			}
-		}
-	}
-	,eachCollision: function(callback) {
-		var _g = 0;
-		var _g1 = this.all;
-		while(_g < _g1.length) {
-			var list = _g1[_g];
-			++_g;
-			var $it0 = list.iterator();
-			while( $it0.hasNext() ) {
-				var c = $it0.next();
-				callback(c);
-			}
-		}
-	}
-	,remove: function(ary) {
-		var _g = 0;
-		while(_g < ary.length) {
-			var c = ary[_g];
-			++_g;
-			var _g1 = 0;
-			var _g2 = this.all;
-			while(_g1 < _g2.length) {
-				var list = _g2[_g1];
-				++_g1;
-				list.remove(c);
-			}
-		}
-	}
-	,__class__: model_domain_SimpleCollisions
-};
 var Main = $hx_exports.Main = function() { };
 Main.__name__ = ["Main"];
 Main.main = function() {
 };
-Main.setup = function(size,onCreateListener,onDestoryListener) {
-	var frame = 0;
-	var stage = new model_domain_Stage();
-	var timelineStage = new model_core_TimelineStage(stage.timelineEvent);
+Main.setup = function(size,stage,onCreateListener,onDestoryListener) {
+	Main.collisions = new model_domain_SimpleCollisions();
+	var stage1 = new model_domain_Stage();
+	var timelineStage = new model_core_TimelineStage(stage1.timelineEvent);
 	Main.gameCore = new model_core_GameStepCore(Main.collisions,size,$bind(timelineStage,timelineStage.step));
 	Main.collisions.setObserver(onCreateListener,onDestoryListener);
+	Main.addNewPlayer();
+};
+Main.setupStage1 = function(size,onCreateListener,onDestoryListener) {
+	Main.setup(size,new model_domain_Stage(),onCreateListener,onDestoryListener);
+};
+Main.addNewPlayer = function() {
 	var player = new model_domain_Player(new model_core_Position(model_domain_WorldStatus.WIDTH / 2,240));
+	player.registerDead(Main.addNewPlayer);
 	Main.collisions.players.push(player);
 };
 Main.getPlayerDirectionFrom = function(org) {
@@ -486,6 +419,11 @@ model_core_CollisionStatus.prototype = {
 	}
 	,__class__: model_core_CollisionStatus
 };
+var model_core_EachHitCollision = function() { };
+model_core_EachHitCollision.__name__ = ["model","core","EachHitCollision"];
+model_core_EachHitCollision.prototype = {
+	__class__: model_core_EachHitCollision
+};
 var model_core_GameStepCore = function(eachCollision,size,stepListener) {
 	this.eachCollision = eachCollision;
 	this.size = size;
@@ -493,7 +431,7 @@ var model_core_GameStepCore = function(eachCollision,size,stepListener) {
 	};
 };
 model_core_GameStepCore.__name__ = ["model","core","GameStepCore"];
-model_core_GameStepCore.__interfaces__ = [model_core_Step];
+model_core_GameStepCore.__interfaces__ = [model_core_Terminatable,model_core_Step];
 model_core_GameStepCore.prototype = {
 	step: function() {
 		var _g = this;
@@ -502,10 +440,7 @@ model_core_GameStepCore.prototype = {
 			c.step();
 		});
 		this.eachCollision.eachHitCollisionPair(function(c1,c2) {
-			if(model_core_CollisionHitTest.hitTest(c1,c2)) {
-				var a = 1;
-				c1.eachAttacked(c2);
-			}
+			if(model_core_CollisionHitTest.hitTest(c1,c2)) c1.eachAttacked(c2);
 		});
 		this.eachCollision.eachCollision(function(c3) {
 			if(_g.isOutOfWorld(c3)) c3.status.terminated = true;
@@ -526,6 +461,11 @@ model_core_GameStepCore.prototype = {
 		if(c.pos.x < -this.size.width || c.pos.x > this.size.width * 2) return true;
 		if(c.pos.y < -this.size.height || c.pos.y > this.size.height * 2) return true;
 		return false;
+	}
+	,terminate: function() {
+		this.eachCollision.eachCollision(function(c) {
+			c.terminate();
+		});
 	}
 	,__class__: model_core_GameStepCore
 };
@@ -793,6 +733,80 @@ model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	}
 	,__class__: model_domain_Player
 });
+var model_domain_SimpleCollisions = function() {
+	this.enemyShots = model_domain_SimpleCollisions.collisionArray();
+	this.enemies = model_domain_SimpleCollisions.collisionArray();
+	this.shots = model_domain_SimpleCollisions.collisionArray();
+	this.items = model_domain_SimpleCollisions.collisionArray();
+	this.players = model_domain_SimpleCollisions.collisionArray();
+	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
+};
+model_domain_SimpleCollisions.__name__ = ["model","domain","SimpleCollisions"];
+model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
+model_domain_SimpleCollisions.collisionArray = function() {
+	return new model_core_lib_ArrayObserver([]);
+};
+model_domain_SimpleCollisions.prototype = {
+	player: function() {
+		return js_Boot.__cast(this.players.get(0) , model_domain_Player);
+	}
+	,setObserver: function(onCreateListener,onDestoryListener) {
+		var _g = 0;
+		var _g1 = this.all;
+		while(_g < _g1.length) {
+			var list = _g1[_g];
+			++_g;
+			list.setObserver(onCreateListener,onDestoryListener);
+		}
+	}
+	,eachHitCollisionPair: function(callback) {
+		this.eachHitCollisionPairWithList(this.players,this.items,callback);
+		this.eachHitCollisionPairWithList(this.players,this.enemies,callback);
+		this.eachHitCollisionPairWithList(this.players,this.enemyShots,callback);
+		this.eachHitCollisionPairWithList(this.shots,this.enemies,callback);
+	}
+	,eachHitCollisionPairWithList: function(ary1,ary2,callback) {
+		var $it0 = $iterator(ary1)();
+		while( $it0.hasNext() ) {
+			var c1 = $it0.next();
+			var $it1 = $iterator(ary2)();
+			while( $it1.hasNext() ) {
+				var c2 = $it1.next();
+				callback(c1,c2);
+			}
+		}
+	}
+	,eachCollision: function(callback) {
+		var _g = 0;
+		var _g1 = this.all;
+		while(_g < _g1.length) {
+			var list = _g1[_g];
+			++_g;
+			var $it0 = list.iterator();
+			while( $it0.hasNext() ) {
+				var c = $it0.next();
+				callback(c);
+			}
+		}
+	}
+	,remove: function(ary) {
+		var _g = 0;
+		while(_g < ary.length) {
+			var c = ary[_g];
+			++_g;
+			var _g1 = 0;
+			var _g2 = this.all;
+			while(_g1 < _g2.length) {
+				var list = _g2[_g1];
+				++_g1;
+				list.remove(c);
+			}
+		}
+	}
+	,__class__: model_domain_SimpleCollisions
+};
+var model_domain_WorldStatus = function() { };
+model_domain_WorldStatus.__name__ = ["model","domain","WorldStatus"];
 var model_domain_Stage = function() {
 	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(280)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
 };
@@ -848,10 +862,15 @@ model_domain_Stage.prototype = {
 	}
 	,__class__: model_domain_Stage
 };
+var model_domain_item_ItemType = { __ename__ : true, __constructs__ : ["doubleshot","lifeup"] };
+model_domain_item_ItemType.doubleshot = ["doubleshot",0];
+model_domain_item_ItemType.doubleshot.toString = $estr;
+model_domain_item_ItemType.doubleshot.__enum__ = model_domain_item_ItemType;
+model_domain_item_ItemType.lifeup = ["lifeup",1];
+model_domain_item_ItemType.lifeup.toString = $estr;
+model_domain_item_ItemType.lifeup.__enum__ = model_domain_item_ItemType;
 var model_domain_TagName = $hx_exports.model.domain.TagName = function() { };
 model_domain_TagName.__name__ = ["model","domain","TagName"];
-var model_domain_WorldStatus = function() { };
-model_domain_WorldStatus.__name__ = ["model","domain","WorldStatus"];
 var model_domain_enemy_DashToPlayerEnemy = function(orgPosition,tag,options) {
 	var speed;
 	if(options.speed != null) speed = options.speed; else speed = 3;
@@ -917,18 +936,11 @@ model_domain_item_ItemFactory.applyLifeUpItem = function() {
 	model_domain_item_ItemFactory.player().lifeUp(10);
 };
 model_domain_item_ItemFactory.player = function() {
-	return js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
+	return Main.collisions.player();
 };
 model_domain_item_ItemFactory.prototype = {
 	__class__: model_domain_item_ItemFactory
 };
-var model_domain_item_ItemType = { __ename__ : true, __constructs__ : ["doubleshot","lifeup"] };
-model_domain_item_ItemType.doubleshot = ["doubleshot",0];
-model_domain_item_ItemType.doubleshot.toString = $estr;
-model_domain_item_ItemType.doubleshot.__enum__ = model_domain_item_ItemType;
-model_domain_item_ItemType.lifeup = ["lifeup",1];
-model_domain_item_ItemType.lifeup.toString = $estr;
-model_domain_item_ItemType.lifeup.__enum__ = model_domain_item_ItemType;
 var model_domain_shot_WeekShot = function(playerPos) {
 	var shotPos = model_core_SteppablePosition.linear(playerPos,new model_core_Position(0,-model_domain_shot_WeekShot.SPEED));
 	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : model_domain_shot_WeekShot.RADIUS, hp : model_domain_shot_WeekShot.HP, ap : model_domain_shot_WeekShot.AP, tagName : model_domain_TagName.shot}),shotPos);
@@ -970,7 +982,6 @@ Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
 var __map_reserved = {}
-Main.collisions = new model_domain_SimpleCollisions();
 js_Boot.__toStr = {}.toString;
 model_core_CollisionIdentifier.idCount = 0;
 model_core_GravityPositionStep.DOWN = 0;
@@ -978,15 +989,17 @@ model_core_GravityPositionStep.UP = 1;
 model_core_GravityPositionStep.RIGHT = 2;
 model_core_GravityPositionStep.LEFT = 3;
 model_domain_Player.MAX_LIFE = 50;
-model_domain_Stage.FPS = 30;
+model_domain_WorldStatus.FPS = 30;
+model_domain_WorldStatus.WIDTH = 320;
+model_domain_WorldStatus.HEIGHT = 320;
+model_domain_Stage.FPS = model_domain_WorldStatus.FPS;
 model_domain_TagName.player = "player";
 model_domain_TagName.shot = "shot";
 model_domain_TagName.item = "item";
 model_domain_TagName.enemy = "enemy";
 model_domain_TagName.enemyshot = "enemyshot";
-model_domain_WorldStatus.FPS = 30;
-model_domain_WorldStatus.WIDTH = 320;
-model_domain_WorldStatus.HEIGHT = 320;
+model_domain_TagName.doubleshot = Std.string(model_domain_item_ItemType.doubleshot);
+model_domain_TagName.lifeup = Std.string(model_domain_item_ItemType.lifeup);
 model_domain_shot_WeekShot.SPEED = 5;
 model_domain_shot_WeekShot.RADIUS = 2;
 model_domain_shot_WeekShot.HP = 1;

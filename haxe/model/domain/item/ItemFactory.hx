@@ -35,7 +35,7 @@ class ItemFactory {
     }
 
     static function player():Player {
-        return cast(Main.collisions.players.get(0), Player);
+        return Main.collisions.player();
     }
 }
 

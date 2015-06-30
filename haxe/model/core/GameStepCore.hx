@@ -1,6 +1,6 @@
 package model.core;
 
-class GameStepCore implements Step {
+class GameStepCore implements Step implements Terminatable {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
     var stepListener:Void -> Void;
@@ -18,7 +18,6 @@ class GameStepCore implements Step {
 // 全体を衝突させる
         eachCollision.eachHitCollisionPair(function(c1:Collision, c2:Collision) {
             if (CollisionHitTest.hitTest(c1, c2)) {
-                var a = 1;
                 c1.eachAttacked(c2);
             }
         });
@@ -38,5 +37,9 @@ class GameStepCore implements Step {
         if (c.pos.x < -size.width || c.pos.x > size.width * 2) return true;
         if (c.pos.y < -size.height || c.pos.y > size.height * 2) return true;
         return false;
+    }
+
+    public function terminate():Void {
+        eachCollision.eachCollision(function(c:Collision) { c.terminate(); });
     }
 }

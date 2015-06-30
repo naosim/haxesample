@@ -13,7 +13,7 @@ class Stage implements Step {
 // 2分間のゲームなら
 // 2[min] * 60[sec] * 30[fps]
 // -> 3600フレーム
-    static var FPS = 30;
+    static var FPS = WorldStatus.FPS;
 
     public var timelineEvent:Array<TimelineEvent>;
 

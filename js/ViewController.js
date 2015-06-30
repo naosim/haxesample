@@ -48,7 +48,7 @@ var createPlayer = function (c) {
 
 var createCommonSprite = function (c) {
     var result = new Sprite(16, 16);
-    result.playerCollision = c;
+//    result.collision = c;
     result.setCenter(c.pos);
     result.addEventListener('enterframe', function () {
         result.setCenter(c.pos);
@@ -77,9 +77,16 @@ var createEnemyShot = function (c) {
     return result;
 }
 
-var createItem = function (c) {
+var createDoubleShotItem = function (c) {
     var result = createCommonSprite(c);
     result.frame = 30;
+    result.image = game.assets[image.icon0];
+    return result;
+}
+
+var createLifeUpItem = function (c) {
+    var result = createCommonSprite(c);
+    result.frame = 14;
     result.image = game.assets[image.icon0];
     return result;
 }
@@ -99,7 +106,7 @@ var showExplosion = function (pos) {
 }
 
 game.onload = function () {
-    Main.setup(
+    Main.setupStage1(
         {width: 320, height: 320},
         function (c) {
             var sprite;
@@ -112,7 +119,8 @@ game.onload = function () {
             } else if (c.hasTag("enemyshot")) {
                 sprite = createEnemyShot(c);
             } else if (c.hasTag("item")) {
-                sprite = createItem(c);
+                if (c.hasTag("doubleshot")) sprite = createDoubleShotItem(c);
+                else if (c.hasTag("lifeup")) sprite = createLifeUpItem(c);
             }
 
             if (sprite) {
@@ -125,6 +133,9 @@ game.onload = function () {
             game.rootScene.removeChild(c.sprite);
             if (c.hasTag('shot') || c.hasTag('enemyshot')) showExplosion(c.pos);
             console.log("delete");
+            // 念のため解放
+            c.sprite.playerCollision = null;
+            c.sprite = null;
         });
 
     game.addEventListener('abuttondown', function () {

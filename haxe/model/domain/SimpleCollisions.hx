@@ -4,6 +4,10 @@ import model.core.lib.ArrayObserver;
 import model.core.EachHitCollision;
 import model.core.Collision;
 
+/*
+衝突物のタイプ：プレイヤ、玉、アイテム、敵、敵玉
+衝突関係：eachHitCollisionPair参照
+ */
 class SimpleCollisions implements EachHitCollision {
     public var players(default, null):ArrayObserver<Collision> = collisionArray();
     public var items(default, null):ArrayObserver<Collision> = collisionArray();
@@ -15,6 +19,10 @@ class SimpleCollisions implements EachHitCollision {
 
     private static function collisionArray():ArrayObserver<Collision> {
         return new ArrayObserver<Collision>(new Array<Collision>());
+    }
+
+    public function player():Player {
+        return cast(players.get(0), Player);
     }
 
     public function new() {
