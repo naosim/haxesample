@@ -65,6 +65,6 @@ class Stage implements Step {
     }
 
     function createItem(orgPos:Position):Collision {
-        return ItemFactory.create(orgPos, ItemType.doubleShot);
+        return ItemFactory.create(orgPos, ItemType.doubleshot);
     }
 }

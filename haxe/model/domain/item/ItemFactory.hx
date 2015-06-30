@@ -10,10 +10,11 @@ class ItemFactory {
     }
 
     public static function create(orgPos:Position, itemType:ItemType):Collision {
-        return (switch(itemType) {
-            case ItemType.doubleShot:createLifeUpItem;
-            case ItemType.lifeUp:createDoubleShotItem;
-        })(orgPos);
+        var apply = switch(itemType) {
+            case ItemType.doubleshot:applyDoubleShotItem;
+            case ItemType.lifeup:applyLifeUpItem;
+        }
+        return createItem(orgPos, Std.string(itemType), apply);
     }
 
     static function createItem(orgPos:Position, tag:String, onDeadItem:Void -> Void):Collision {
@@ -25,22 +26,20 @@ class ItemFactory {
         return c;
     }
 
-    static function createDoubleShotItem(orgPos:Position):Collision {
-        return createItem(orgPos, "doubleshot", function() {
-            var player:Player = cast(Main.collisions.players.get(0), Player);
-            player.createShots = WeekShot.createDoubleShots;
-        });
+    static function applyDoubleShotItem() {
+        player().createShots = WeekShot.createDoubleShots;
     }
 
-    static function createLifeUpItem(orgPos:Position):Collision {
-        return createItem(orgPos, "lifeup", function() {
-            var player:Player = cast(Main.collisions.players.get(0), Player);
-            player.lifeUp(10);
-        });
+    static function applyLifeUpItem() {
+        player().lifeUp(10);
+    }
+
+    static function player():Player {
+        return cast(Main.collisions.players.get(0), Player);
     }
 }
 
 enum ItemType {
-    doubleShot;
-    lifeUp;
+    doubleshot;
+    lifeup;
 }

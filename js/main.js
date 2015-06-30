@@ -844,7 +844,7 @@ model_domain_Stage.prototype = {
 		});
 	}
 	,createItem: function(orgPos) {
-		return model_domain_item_ItemFactory.create(orgPos,model_domain_item_ItemType.doubleShot);
+		return model_domain_item_ItemFactory.create(orgPos,model_domain_item_ItemType.doubleshot);
 	}
 	,__class__: model_domain_Stage
 };
@@ -891,18 +891,16 @@ var model_domain_item_ItemFactory = function() {
 };
 model_domain_item_ItemFactory.__name__ = ["model","domain","item","ItemFactory"];
 model_domain_item_ItemFactory.create = function(orgPos,itemType) {
-	return ((function($this) {
-		var $r;
-		switch(itemType[1]) {
-		case 0:
-			$r = model_domain_item_ItemFactory.createLifeUpItem;
-			break;
-		case 1:
-			$r = model_domain_item_ItemFactory.createDoubleShotItem;
-			break;
-		}
-		return $r;
-	}(this)))(orgPos);
+	var apply;
+	switch(itemType[1]) {
+	case 0:
+		apply = model_domain_item_ItemFactory.applyDoubleShotItem;
+		break;
+	case 1:
+		apply = model_domain_item_ItemFactory.applyLifeUpItem;
+		break;
+	}
+	return model_domain_item_ItemFactory.createItem(orgPos,Std.string(itemType),apply);
 };
 model_domain_item_ItemFactory.createItem = function(orgPos,tag,onDeadItem) {
 	var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
@@ -912,30 +910,25 @@ model_domain_item_ItemFactory.createItem = function(orgPos,tag,onDeadItem) {
 	c.registerDead(onDeadItem);
 	return c;
 };
-model_domain_item_ItemFactory.createDoubleShotItem = function(orgPos) {
-	return model_domain_item_ItemFactory.createItem(orgPos,"doubleshot",function() {
-		var player;
-		player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
-		player.createShots = model_domain_shot_WeekShot.createDoubleShots;
-	});
+model_domain_item_ItemFactory.applyDoubleShotItem = function() {
+	model_domain_item_ItemFactory.player().createShots = model_domain_shot_WeekShot.createDoubleShots;
 };
-model_domain_item_ItemFactory.createLifeUpItem = function(orgPos) {
-	return model_domain_item_ItemFactory.createItem(orgPos,"lifeup",function() {
-		var player;
-		player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
-		player.lifeUp(10);
-	});
+model_domain_item_ItemFactory.applyLifeUpItem = function() {
+	model_domain_item_ItemFactory.player().lifeUp(10);
+};
+model_domain_item_ItemFactory.player = function() {
+	return js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
 };
 model_domain_item_ItemFactory.prototype = {
 	__class__: model_domain_item_ItemFactory
 };
-var model_domain_item_ItemType = { __ename__ : true, __constructs__ : ["doubleShot","lifeUp"] };
-model_domain_item_ItemType.doubleShot = ["doubleShot",0];
-model_domain_item_ItemType.doubleShot.toString = $estr;
-model_domain_item_ItemType.doubleShot.__enum__ = model_domain_item_ItemType;
-model_domain_item_ItemType.lifeUp = ["lifeUp",1];
-model_domain_item_ItemType.lifeUp.toString = $estr;
-model_domain_item_ItemType.lifeUp.__enum__ = model_domain_item_ItemType;
+var model_domain_item_ItemType = { __ename__ : true, __constructs__ : ["doubleshot","lifeup"] };
+model_domain_item_ItemType.doubleshot = ["doubleshot",0];
+model_domain_item_ItemType.doubleshot.toString = $estr;
+model_domain_item_ItemType.doubleshot.__enum__ = model_domain_item_ItemType;
+model_domain_item_ItemType.lifeup = ["lifeup",1];
+model_domain_item_ItemType.lifeup.toString = $estr;
+model_domain_item_ItemType.lifeup.__enum__ = model_domain_item_ItemType;
 var model_domain_shot_WeekShot = function(playerPos) {
 	var shotPos = model_core_SteppablePosition.linear(playerPos,new model_core_Position(0,-model_domain_shot_WeekShot.SPEED));
 	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : model_domain_shot_WeekShot.RADIUS, hp : model_domain_shot_WeekShot.HP, ap : model_domain_shot_WeekShot.AP, tagName : model_domain_TagName.shot}),shotPos);
