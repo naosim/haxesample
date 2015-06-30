@@ -1,11 +1,10 @@
 package model.domain;
 
 import model.domain.item.ItemFactory;
-import model.core.TimelineStage.TimelineEvent;
-import model.core.CollisionIdentifier.Tag;
+import model.core.TimelineEvent;
+import model.core.Tag;
 import model.domain.enemy.StraightAndShotEnemy;
 import model.domain.enemy.DashToPlayerEnemy;
-import model.core.Collision.CollisionParams;
 import model.core.Collision;
 import model.core.Position;
 import model.core.Step;

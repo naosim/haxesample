@@ -1,4 +1,5 @@
 package model.domain.item;
+import model.core.CollisionParams;
 import model.domain.shot.WeekShot;
 import model.core.Position;
 import model.core.SteppablePositionCollision;

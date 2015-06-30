@@ -4,7 +4,7 @@ import model.domain.SimpleCollisions;
 import model.domain.shot.WeekShot;
 import model.core.Position;
 import model.core.Collision;
-import model.core.Collision.CollisionParams;
+import model.core.CollisionParams;
 
 @:expose
 class Player extends Collision {

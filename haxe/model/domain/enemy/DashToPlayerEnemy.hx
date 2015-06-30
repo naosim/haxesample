@@ -1,6 +1,6 @@
 package model.domain.enemy;
-import model.core.CollisionIdentifier.Tag;
-import model.core.Collision.CollisionParams;
+import model.core.Tag;
+import model.core.CollisionParams;
 import model.core.SteppablePosition;
 import model.core.Position;
 import model.core.SteppablePositionCollision;

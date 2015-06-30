@@ -284,22 +284,6 @@ model_core_Collision.prototype = {
 	}
 	,__class__: model_core_Collision
 };
-var model_core_CollisionParams = function(shape,status,identifier) {
-	this.shape = shape;
-	this.status = status;
-	this.identifier = identifier;
-};
-model_core_CollisionParams.__name__ = ["model","core","CollisionParams"];
-model_core_CollisionParams.circle = function(params) {
-	var c = new model_core_shape_Circle(params.r);
-	var status = new model_core_CollisionStatus(new model_core_HitPoint(params.hp),params.ap);
-	var identifier;
-	if(params.tag != null) identifier = new model_core_CollisionIdentifier(params.tag); else identifier = model_core_CollisionIdentifier.withTag(params.tagName,params.tagNames);
-	return new model_core_CollisionParams(c,status,identifier);
-};
-model_core_CollisionParams.prototype = {
-	__class__: model_core_CollisionParams
-};
 var model_core_CollisionHitTest = function(left,right) {
 	this.left = left;
 	this.right = right;
@@ -330,29 +314,21 @@ model_core_CollisionIdentifier.prototype = {
 	}
 	,__class__: model_core_CollisionIdentifier
 };
-var model_core_Tag = function(tag,tags) {
-	this.tags = new haxe_ds_StringMap();
-	if(tag != null) {
-		this.tags.set(tag,true);
-		true;
-	} else if(tags != null) {
-		var _g = 0;
-		while(_g < tags.length) {
-			var t = tags[_g];
-			++_g;
-			{
-				this.tags.set(t,true);
-				true;
-			}
-		}
-	}
+var model_core_CollisionParams = function(shape,status,identifier) {
+	this.shape = shape;
+	this.status = status;
+	this.identifier = identifier;
 };
-model_core_Tag.__name__ = ["model","core","Tag"];
-model_core_Tag.prototype = {
-	has: function(tag) {
-		return this.tags.exists(tag);
-	}
-	,__class__: model_core_Tag
+model_core_CollisionParams.__name__ = ["model","core","CollisionParams"];
+model_core_CollisionParams.circle = function(params) {
+	var c = new model_core_shape_Circle(params.r);
+	var status = new model_core_CollisionStatus(new model_core_HitPoint(params.hp),params.ap);
+	var identifier;
+	if(params.tag != null) identifier = new model_core_CollisionIdentifier(params.tag); else identifier = model_core_CollisionIdentifier.withTag(params.tagName,params.tagNames);
+	return new model_core_CollisionParams(c,status,identifier);
+};
+model_core_CollisionParams.prototype = {
+	__class__: model_core_CollisionParams
 };
 var model_core_CollisionStatus = function(hitPoint,attackPoint) {
 	this.isDeadObservable = new model_core_lib_ObservableValue(false);
@@ -593,6 +569,38 @@ model_core_SteppablePositionCollision.prototype = $extend(model_core_Collision.p
 	}
 	,__class__: model_core_SteppablePositionCollision
 });
+var model_core_Tag = function(tag,tags) {
+	this.tags = new haxe_ds_StringMap();
+	if(tag != null) {
+		this.tags.set(tag,true);
+		true;
+	} else if(tags != null) {
+		var _g = 0;
+		while(_g < tags.length) {
+			var t = tags[_g];
+			++_g;
+			{
+				this.tags.set(t,true);
+				true;
+			}
+		}
+	}
+};
+model_core_Tag.__name__ = ["model","core","Tag"];
+model_core_Tag.prototype = {
+	has: function(tag) {
+		return this.tags.exists(tag);
+	}
+	,__class__: model_core_Tag
+};
+var model_core_TimelineEvent = function(eventFrameFromLastEvent,eventTask) {
+	this.eventFrameFromLastEvent = eventFrameFromLastEvent;
+	this.eventTask = eventTask;
+};
+model_core_TimelineEvent.__name__ = ["model","core","TimelineEvent"];
+model_core_TimelineEvent.prototype = {
+	__class__: model_core_TimelineEvent
+};
 var model_core_TimelineStage = function(timeline) {
 	this.frameFromLastEvent = 0;
 	this.timeline = timeline;
@@ -610,14 +618,6 @@ model_core_TimelineStage.prototype = {
 		this.frameFromLastEvent++;
 	}
 	,__class__: model_core_TimelineStage
-};
-var model_core_TimelineEvent = function(eventFrameFromLastEvent,eventTask) {
-	this.eventFrameFromLastEvent = eventFrameFromLastEvent;
-	this.eventTask = eventTask;
-};
-model_core_TimelineEvent.__name__ = ["model","core","TimelineEvent"];
-model_core_TimelineEvent.prototype = {
-	__class__: model_core_TimelineEvent
 };
 var model_core_lib_ArrayObserver = function(ary) {
 	this.ary = ary;

@@ -1,7 +1,7 @@
 package model.domain.shot;
+import model.core.CollisionParams;
 import model.domain.SimpleCollisions;
 import model.core.Position;
-import model.core.Collision.CollisionParams;
 import model.core.Collision;
 import model.core.SteppablePosition;
 import model.core.SteppablePositionCollision;
