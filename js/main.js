@@ -3,6 +3,7 @@ $hx_exports.model = $hx_exports.model || {};
 $hx_exports.model.domain = $hx_exports.model.domain || {};
 ;$hx_exports.model.core = $hx_exports.model.core || {};
 $hx_exports.model.core.shape = $hx_exports.model.core.shape || {};
+var $estr = function() { return js_Boot.__string_rec(this,''); };
 function $extend(from, fields) {
 	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
 	for (var name in fields) proto[name] = fields[name];
@@ -775,7 +776,7 @@ model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	,__class__: model_domain_Player
 });
 var model_domain_Stage = function() {
-	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
+	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(280)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
 };
 model_domain_Stage.__name__ = ["model","domain","Stage"];
 model_domain_Stage.__interfaces__ = [model_core_Step];
@@ -825,18 +826,7 @@ model_domain_Stage.prototype = {
 		});
 	}
 	,createItem: function(orgPos) {
-		var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
-		var speed = new model_core_Position(0,-5);
-		var pos = model_core_GravityPositionStep.createPosition(orgPos,speed);
-		var c = new model_core_SteppablePositionCollision(params,pos);
-		c.registerDead(function(_,isDead) {
-			if(isDead) {
-				var player;
-				player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
-				player.createShots = model_domain_shot_WeekShot.createDoubleShots;
-			}
-		});
-		return c;
+		return model_domain_item_ItemFactory.create(orgPos,model_domain_item_ItemType.doubleShot);
 	}
 	,__class__: model_domain_Stage
 };
@@ -879,6 +869,50 @@ model_domain_enemy_StraightAndShotEnemy.prototype = $extend(model_core_Steppable
 	}
 	,__class__: model_domain_enemy_StraightAndShotEnemy
 });
+var model_domain_item_ItemFactory = function() {
+};
+model_domain_item_ItemFactory.__name__ = ["model","domain","item","ItemFactory"];
+model_domain_item_ItemFactory.create = function(orgPos,itemType) {
+	return ((function($this) {
+		var $r;
+		switch(itemType[1]) {
+		case 0:
+			$r = model_domain_item_ItemFactory.createDoubleShotItem;
+			break;
+		case 1:
+			$r = model_domain_item_ItemFactory.createDoubleShotItem;
+			break;
+		}
+		return $r;
+	}(this)))(orgPos);
+};
+model_domain_item_ItemFactory.createItem = function(orgPos,onDeadItem) {
+	var params = model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 0, tagName : model_domain_TagName.item});
+	var speed = new model_core_Position(0,-5);
+	var pos = model_core_GravityPositionStep.createPosition(orgPos,speed);
+	var c = new model_core_SteppablePositionCollision(params,pos);
+	c.registerDead(function(_,isDead) {
+		if(isDead) onDeadItem();
+	});
+	return c;
+};
+model_domain_item_ItemFactory.createDoubleShotItem = function(orgPos) {
+	return model_domain_item_ItemFactory.createItem(orgPos,function() {
+		var player;
+		player = js_Boot.__cast(Main.collisions.players.get(0) , model_domain_Player);
+		player.createShots = model_domain_shot_WeekShot.createDoubleShots;
+	});
+};
+model_domain_item_ItemFactory.prototype = {
+	__class__: model_domain_item_ItemFactory
+};
+var model_domain_item_ItemType = { __ename__ : true, __constructs__ : ["doubleShot","lifeUp"] };
+model_domain_item_ItemType.doubleShot = ["doubleShot",0];
+model_domain_item_ItemType.doubleShot.toString = $estr;
+model_domain_item_ItemType.doubleShot.__enum__ = model_domain_item_ItemType;
+model_domain_item_ItemType.lifeUp = ["lifeUp",1];
+model_domain_item_ItemType.lifeUp.toString = $estr;
+model_domain_item_ItemType.lifeUp.__enum__ = model_domain_item_ItemType;
 var model_domain_shot_WeekShot = function(playerPos) {
 	var shotPos = model_core_SteppablePosition.linear(playerPos,new model_core_Position(0,-model_domain_shot_WeekShot.SPEED));
 	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : model_domain_shot_WeekShot.RADIUS, hp : model_domain_shot_WeekShot.HP, ap : model_domain_shot_WeekShot.AP, tagName : model_domain_TagName.shot}),shotPos);
