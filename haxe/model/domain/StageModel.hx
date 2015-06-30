@@ -6,6 +6,8 @@ import model.core.GameStepCore;
 
 @:expose
 class StageModel {
+    static public function main() {}
+
     public var gameCore:GameStepCore;
     public var collisions:SimpleCollisions = new SimpleCollisions();
 
@@ -18,7 +20,6 @@ class StageModel {
         onCreateListener:Collision -> Void,
         onDestoryListener:Collision -> Void
     ) {
-        var stage = new Stage();
         var timelineStage = new TimelineStage(stage.timelineEvent);
 
         gameCore = new GameStepCore(collisions, size, timelineStage.step);
@@ -28,18 +29,18 @@ class StageModel {
         collisions.player().registerDead(addNewPlayer);
     }
 
+    function addNewPlayer() {
+        var player = new Player(collisions, new Position(WorldStatus.WIDTH / 2, 240));
+        collisions.players.push(player);
+    }
+
     static public function createStage1Model(
         size:{width:Float, height:Float},
         onCreateListener:Collision -> Void,
         onDestoryListener:Collision -> Void
     ) {
         var result = new StageModel();
-        result.setup(size, new Stage(), onCreateListener, onDestoryListener);
+        result.setup(size, new Stage(result.collisions), onCreateListener, onDestoryListener);
         return result;
-    }
-
-    function addNewPlayer() {
-        var player = new Player(new Position(WorldStatus.WIDTH / 2, 240));
-        collisions.players.push(player);
     }
 }

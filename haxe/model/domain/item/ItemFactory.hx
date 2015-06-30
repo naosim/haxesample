@@ -6,10 +6,13 @@ import model.core.GravityPositionStep;
 import model.core.Collision;
 class ItemFactory {
 
-    public function new() {
+    var collisions:SimpleCollisions;
+
+    public function new(collisions:SimpleCollisions) {
+        this.collisions = collisions;
     }
 
-    public static function create(orgPos:Position, itemType:ItemType):Collision {
+    public function create(orgPos:Position, itemType:ItemType):Collision {
         var apply = switch(itemType) {
             case ItemType.doubleshot:applyDoubleShotItem;
             case ItemType.lifeup:applyLifeUpItem;
@@ -17,7 +20,7 @@ class ItemFactory {
         return createItem(orgPos, Std.string(itemType), apply);
     }
 
-    static function createItem(orgPos:Position, tag:String, onDeadItem:Void -> Void):Collision {
+    function createItem(orgPos:Position, tag:String, onDeadItem:Void -> Void):Collision {
         var params = CollisionParams.circle({r:8, hp:1, ap:0, tagName: TagName.item});
         var speed = new Position(0, -5);
         var pos = GravityPositionStep.createPosition(orgPos, speed);
@@ -26,16 +29,16 @@ class ItemFactory {
         return c;
     }
 
-    static function applyDoubleShotItem() {
+    function applyDoubleShotItem() {
         player().createShots = WeekShot.createDoubleShots;
     }
 
-    static function applyLifeUpItem() {
+    function applyLifeUpItem() {
         player().lifeUp(10);
     }
 
-    static function player():Player {
-        return Main.collisions.player();
+    function player():Player {
+        return collisions.player();
     }
 }
 

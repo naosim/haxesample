@@ -16,8 +16,9 @@ class Stage implements Step {
     static var FPS = WorldStatus.FPS;
 
     public var timelineEvent:Array<TimelineEvent>;
+    var collisions:SimpleCollisions;
 
-    public function new() {
+    public function new(collisions:SimpleCollisions) {
         timelineEvent = [
             new TimelineEvent(3 * FPS, this.dashOneself(50)),
             new TimelineEvent(3 * FPS, this.dashOneself(280)),
@@ -25,6 +26,7 @@ class Stage implements Step {
             new TimelineEvent(3 * FPS, this.straighatAndShot(0)),
             new TimelineEvent(3 * FPS, this.straighatAndShot(WorldStatus.WIDTH))
         ];
+        this.collisions = collisions;
 
     }
 
@@ -32,14 +34,14 @@ class Stage implements Step {
     }
 
     function push(enemies:Array<Collision>) {
-        for (e in enemies) Main.collisions.enemies.push(e);
+        for (e in enemies) collisions.enemies.push(e);
     }
 
     function dashOneself(orgx:Float):Void -> Void {
         return function():Void {
             var result:Array<Collision> = [];
             for (i in 0...5) {
-                result.push(new DashToPlayerEnemy(new Position(orgx, -20 * i - 8), new Tag(TagName.enemy), {}));
+                result.push(new DashToPlayerEnemy(collisions, new Position(orgx, -20 * i - 8), new Tag(TagName.enemy), {}));
             }
             push(result);
         }
@@ -50,7 +52,7 @@ class Stage implements Step {
             var result:Array<Collision> = [];
             var d = orgx < WorldStatus.WIDTH / 2 ? -1 : 1;
             for (i in 0...5) {
-                var collision = new StraightAndShotEnemy(new Position(orgx + 15 * i * d, -i * 5));
+                var collision = new StraightAndShotEnemy(collisions, new Position(orgx + 15 * i * d, -i * 5));
                 createItemWhenEnemyDead(collision);
                 result.push(collision);
             }
@@ -60,11 +62,11 @@ class Stage implements Step {
 
     function createItemWhenEnemyDead(collision:Collision) {
         collision.registerDead(function() {
-            Main.collisions.items.push(createItem(collision.pos));
+            collisions.items.push(createItem(collision.pos));
         });
     }
 
     function createItem(orgPos:Position):Collision {
-        return ItemFactory.create(orgPos, ItemType.doubleshot);
+        return new ItemFactory(collisions).create(orgPos, ItemType.doubleshot);
     }
 }

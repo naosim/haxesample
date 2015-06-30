@@ -1,3 +1,4 @@
--main Main
+-main model.domain.StageModel
 -js ../js/main.js
+-debug
 -cmd echo "BUILD SUCCESS => js/main.js"

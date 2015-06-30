@@ -1,4 +1,5 @@
 package model.domain.shot;
+import model.domain.SimpleCollisions;
 import model.core.Position;
 import model.core.Collision.CollisionParams;
 import model.core.Collision;
@@ -21,13 +22,13 @@ class WeekShot extends SteppablePositionCollision {
         if (pos.y < -10) status.terminated = true;
     }
 
-    public static function create(playerPos:Position):Array<Collision> {
-        if (Main.collisions.shots.length() >= 10) return null;
+    public static function create(collisions:SimpleCollisions, playerPos:Position):Array<Collision> {
+        if (collisions.shots.length() >= 10) return null;
         return [new WeekShot(playerPos)];
     }
 
-    public static function createDoubleShots(playerPos:Position):Array<Collision> {
-        if (Main.collisions.shots.length() >= 10) return null;
+    public static function createDoubleShots(collisions:SimpleCollisions, playerPos:Position):Array<Collision> {
+        if (collisions.shots.length() >= 10) return null;
         var left = new Position(playerPos.x - 4, playerPos.y);
         var right = new Position(playerPos.x + 4, playerPos.y);
         return [new WeekShot(left), new WeekShot(right)];

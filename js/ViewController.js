@@ -106,7 +106,8 @@ var showExplosion = function (pos) {
 }
 
 game.onload = function () {
-    Main.setupStage1(
+    var stageModel = model.domain.StageModel.createStage1Model(
+//    Main.setupStage1(
         {width: 320, height: 320},
         function (c) {
             var sprite;
@@ -145,7 +146,7 @@ game.onload = function () {
     });
 
     game.rootScene.addEventListener('enterframe', function () {
-        Main.gameCore.step();
+        stageModel.gameCore.step();
     });
 };
 

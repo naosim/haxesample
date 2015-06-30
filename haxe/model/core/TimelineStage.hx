@@ -11,7 +11,7 @@ class TimelineStage implements Step {
     }
 
     public function step():Void {
-        if (nextEvent != null && frameFromLastEvent >= nextEvent.eventFrameFromLastEvent && Main.collisions.players.length() > 0) {
+        if (nextEvent != null && frameFromLastEvent >= nextEvent.eventFrameFromLastEvent) {
             nextEvent.eventTask();
             nextEvent = timeline.shift();
             frameFromLastEvent = 0;
