@@ -486,7 +486,6 @@ model_core_HitPoint.prototype = $extend(model_core_lib_ObservableFloat.prototype
 var model_core_Position = function(x,y) {
 	if(y == null) y = 0;
 	if(x == null) x = 0;
-	this.z = 0;
 	this.y = 0;
 	this.x = 0;
 	this.x = x;

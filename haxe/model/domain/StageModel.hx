@@ -8,7 +8,7 @@ import model.core.StageStepCore;
 class StageModel {
     static public function main() {}
 
-    public var gameCore:StageStepCore;
+    public var stageStepCore:StageStepCore;
     public var collisions:SimpleCollisions = new SimpleCollisions();
 
     public function new() {
@@ -22,7 +22,7 @@ class StageModel {
     ) {
         var timelineStage = new TimelineStage(stage.timelineEvent);
 
-        gameCore = new StageStepCore(collisions, size, timelineStage.step);
+        stageStepCore = new StageStepCore(collisions, size, timelineStage.step);
 
         collisions.setObserver(onCreateListener, onDestoryListener);
         addNewPlayer();
