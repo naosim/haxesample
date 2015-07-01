@@ -22,7 +22,8 @@ class SimpleCollisions implements EachHitCollision {
     }
 
     public function player():Player {
-        return cast(players.get(0), Player);
+        var c = players.get(0);
+        return c != null ? cast(players.get(0), Player) : null;
     }
 
     public function new() {

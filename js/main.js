@@ -223,6 +223,11 @@ js_Boot.__isNativeObj = function(o) {
 js_Boot.__resolveNativeClass = function(name) {
 	return (Function("return typeof " + name + " != \"undefined\" ? " + name + " : null"))();
 };
+var model_core_CollisionLifeCycle = function() { };
+model_core_CollisionLifeCycle.__name__ = ["model","core","CollisionLifeCycle"];
+model_core_CollisionLifeCycle.prototype = {
+	__class__: model_core_CollisionLifeCycle
+};
 var model_core_Terminatable = function() { };
 model_core_Terminatable.__name__ = ["model","core","Terminatable"];
 model_core_Terminatable.prototype = {
@@ -234,6 +239,7 @@ model_core_Step.prototype = {
 	__class__: model_core_Step
 };
 var model_core_Collision = function(params,pos) {
+	this.isFirstStep = true;
 	this.deadObserver = [];
 	var _g = this;
 	if(pos != null) this.pos = pos; else this.pos = model_core_Position.zero();
@@ -251,14 +257,20 @@ var model_core_Collision = function(params,pos) {
 			}
 		}
 	});
+	this.registerDead($bind(this,this.onDead));
 };
 model_core_Collision.__name__ = ["model","core","Collision"];
-model_core_Collision.__interfaces__ = [model_core_Terminatable,model_core_Step];
+model_core_Collision.__interfaces__ = [model_core_CollisionLifeCycle,model_core_Terminatable,model_core_Step];
 model_core_Collision.prototype = {
 	eachAttacked: function(other) {
 		this.status.eachAttacked(other.status);
 	}
 	,step: function() {
+		if(this.isFirstStep) {
+			this.onCreate();
+			this.isFirstStep = false;
+		}
+		this.onStep();
 	}
 	,isDead: function() {
 		return this.status.isDead();
@@ -279,8 +291,17 @@ model_core_Collision.prototype = {
 		HxOverrides.remove(this.deadObserver,o);
 	}
 	,terminate: function() {
+		this.onTerminate();
 		this.status.terminate();
 		this.deadObserver = [];
+	}
+	,onCreate: function() {
+	}
+	,onDead: function() {
+	}
+	,onStep: function() {
+	}
+	,onTerminate: function() {
 	}
 	,__class__: model_core_Collision
 };
@@ -564,7 +585,7 @@ var model_core_SteppablePositionCollision = function(params,pos) {
 model_core_SteppablePositionCollision.__name__ = ["model","core","SteppablePositionCollision"];
 model_core_SteppablePositionCollision.__super__ = model_core_Collision;
 model_core_SteppablePositionCollision.prototype = $extend(model_core_Collision.prototype,{
-	step: function() {
+	onStep: function() {
 		this.movablePos.step();
 	}
 	,__class__: model_core_SteppablePositionCollision
@@ -729,7 +750,8 @@ model_domain_SimpleCollisions.collisionArray = function() {
 };
 model_domain_SimpleCollisions.prototype = {
 	player: function() {
-		return js_Boot.__cast(this.players.get(0) , model_domain_Player);
+		var c = this.players.get(0);
+		if(c != null) return js_Boot.__cast(this.players.get(0) , model_domain_Player); else return null;
 	}
 	,setObserver: function(onCreateListener,onDestoryListener) {
 		var _g = 0;
@@ -861,11 +883,11 @@ model_domain_StageModel.prototype = {
 		this.gameCore = new model_core_StageStepCore(this.collisions,size,$bind(timelineStage,timelineStage.step));
 		this.collisions.setObserver(onCreateListener,onDestoryListener);
 		this.addNewPlayer();
-		this.collisions.player().registerDead($bind(this,this.addNewPlayer));
 	}
 	,addNewPlayer: function() {
 		var player = new model_domain_Player(this.collisions,new model_core_Position(model_domain_WorldStatus.WIDTH / 2,240));
 		this.collisions.players.push(player);
+		player.registerDead($bind(this,this.addNewPlayer));
 	}
 	,__class__: model_domain_StageModel
 };
@@ -907,8 +929,8 @@ var model_domain_enemy_StraightAndShotEnemy = function(collisions,orgPosition,sp
 model_domain_enemy_StraightAndShotEnemy.__name__ = ["model","domain","enemy","StraightAndShotEnemy"];
 model_domain_enemy_StraightAndShotEnemy.__super__ = model_core_SteppablePositionCollision;
 model_domain_enemy_StraightAndShotEnemy.prototype = $extend(model_core_SteppablePositionCollision.prototype,{
-	step: function() {
-		model_core_SteppablePositionCollision.prototype.step.call(this);
+	onStep: function() {
+		model_core_SteppablePositionCollision.prototype.onStep.call(this);
 		if(this.frame == 100) this.collisions.enemyShots.push(new model_domain_enemy_DashToPlayerEnemy(this.collisions,this.pos,new model_core_Tag(model_domain_TagName.enemyshot),{ radius : 2}));
 		this.frame++;
 	}

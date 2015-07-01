@@ -3,7 +3,7 @@ package model.core;
 import model.core.CollisionIdentifier;
 import model.core.shape.Shape;
 
-class Collision implements Step implements Terminatable {
+class Collision implements Step implements Terminatable implements CollisionLifeCycle {
     public var pos(default, null):Position;// 画面に対する相対位置
     public var shape(default, null):Shape;
     public var status:CollisionStatus;
@@ -18,13 +18,21 @@ class Collision implements Step implements Terminatable {
         this.status.registerDead(function(_, after:Bool) {
             if (after) for (o in deadObserver) o();
         });
+        registerDead(onDead);
     }
 
     public function eachAttacked(other:Collision) {
         status.eachAttacked(other.status);
     }
 
+    var isFirstStep = true;
+
     public function step() {
+        if (isFirstStep) {
+            onCreate();
+            isFirstStep = false;
+        }
+        onStep();
 // implements subclass
     }
 
@@ -53,7 +61,16 @@ class Collision implements Step implements Terminatable {
     }
 
     public function terminate():Void {
+        onTerminate();
         status.terminate();
         deadObserver = [];
     }
+
+    public function onCreate() {}
+
+    public function onDead() {}
+
+    public function onStep() {}
+
+    public function onTerminate() {}
 }

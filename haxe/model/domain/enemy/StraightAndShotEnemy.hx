@@ -20,8 +20,8 @@ class StraightAndShotEnemy extends SteppablePositionCollision {
 
     var frame = 0;
 
-    public override function step() {
-        super.step();
+    public override function onStep() {
+        super.onStep();
         if (frame == 100) {
             collisions.enemyShots.push(new DashToPlayerEnemy(collisions, pos, new Tag(TagName.enemyshot), {radius: 2}));
         }

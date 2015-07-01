@@ -10,7 +10,7 @@ class SteppablePositionCollision extends Collision {
         this.movablePos = pos;
     }
 
-    public override function step() {
+    public override function onStep() {
         this.movablePos.step();
     }
 }

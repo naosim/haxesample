@@ -26,12 +26,12 @@ class StageModel {
 
         collisions.setObserver(onCreateListener, onDestoryListener);
         addNewPlayer();
-        collisions.player().registerDead(addNewPlayer);
     }
 
     function addNewPlayer() {
         var player = new Player(collisions, new Position(WorldStatus.WIDTH / 2, 240));
         collisions.players.push(player);
+        player.registerDead(addNewPlayer);
     }
 
     static public function createStage1Model(
