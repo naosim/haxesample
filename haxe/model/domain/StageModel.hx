@@ -12,6 +12,7 @@ class StageModel implements StageLifeCycle<String> {
 
     public var stageStepCore:StageStepCore<String>;
     public var collisions:SimpleCollisions = new SimpleCollisions();
+    var stage: Stage;
     var timelineStage:TimelineStage;
 
     public function new() {
@@ -23,6 +24,7 @@ class StageModel implements StageLifeCycle<String> {
         onCreateListener:Collision -> Void,
         onDestoryListener:Collision -> Void
     ) {
+        this.stage = stage;
         this.timelineStage = new TimelineStage(stage.timelineEvent);
         stageStepCore = new StageStepCore<String>(collisions, size, getStageEndConditionResult, this);
         collisions.setObserver(onCreateListener, onDestoryListener);
@@ -46,6 +48,9 @@ class StageModel implements StageLifeCycle<String> {
     }
 
     function getStageEndConditionResult() {
+        if(stage.bossDead) {
+            return new StageEndConditionResult(true, "bossdead");
+        }
         return new StageEndConditionResult(false);
     }
 
@@ -56,5 +61,7 @@ class StageModel implements StageLifeCycle<String> {
         timelineStage.step();
     }
 
-    public function onEnd(couse:String):Void {}
+    public function onEnd(couse:String):Void {
+        trace(couse);
+    }
 }

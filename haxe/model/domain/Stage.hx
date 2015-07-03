@@ -1,5 +1,6 @@
 package model.domain;
 
+import model.domain.enemy.FirstStageBoss;
 import model.domain.item.ItemFactory;
 import model.core.TimelineEvent;
 import model.core.Tag;
@@ -16,19 +17,19 @@ class Stage implements Step {
 
     public var timelineEvent:Array<TimelineEvent>;
     var collisions:SimpleCollisions;
-    var boss:Collision;
+    public var bossDead:Bool = false;
 
     public function new(collisions:SimpleCollisions) {
         timelineEvent = [
-            new TimelineEvent(3 * FPS, this.dashOneself(50)),
-            new TimelineEvent(3 * FPS, this.dashOneself(280)),
-            new TimelineEvent(3 * FPS, this.dashOneself(50)),
-            new TimelineEvent(3 * FPS, this.straighatAndShot(0)),
-            new TimelineEvent(3 * FPS, this.straighatAndShot(WorldStatus.WIDTH))
-//            new TimelineEvent(3 * FPS, this.showBoss)
+//            new TimelineEvent(3 * FPS, this.dashOneself(50)),
+//            new TimelineEvent(3 * FPS, this.dashOneself(280)),
+//            new TimelineEvent(3 * FPS, this.dashOneself(50)),
+//            new TimelineEvent(3 * FPS, this.straighatAndShot(0)),
+            new TimelineEvent(3 * FPS, this.straighatAndShot(WorldStatus.WIDTH)),
+            new TimelineEvent(3 * FPS, this.boss)
         ];
         this.collisions = collisions;
-        this.boss = createBoss();
+//        this.boss = createBoss();
 
     }
 
@@ -62,13 +63,13 @@ class Stage implements Step {
         }
     }
 
-    function createBoss() {
-        return new DashToPlayerEnemy(collisions, new Position(0, 0), new Tag(TagName.enemy), {});
+    function boss() {
+        var collision = new FirstStageBoss(collisions);
+        collision.registerDead(function(){
+            bossDead = true;
+        });
+        push([collision]);
     }
-//
-//    function showBoss():Array<Collision> {
-//        return [boss];
-//    }
 
     function createItemWhenEnemyDead(collision:Collision) {
         collision.registerDead(function() {

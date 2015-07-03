@@ -834,9 +834,9 @@ model_domain_SimpleCollisions.prototype = {
 var model_domain_WorldStatus = function() { };
 model_domain_WorldStatus.__name__ = ["model","domain","WorldStatus"];
 var model_domain_Stage = function(collisions) {
-	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(280)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
+	this.bossDead = false;
+	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,$bind(this,this.boss))];
 	this.collisions = collisions;
-	this.boss = this.createBoss();
 };
 model_domain_Stage.__name__ = ["model","domain","Stage"];
 model_domain_Stage.__interfaces__ = [model_core_Step];
@@ -879,8 +879,13 @@ model_domain_Stage.prototype = {
 			_g1.push(result);
 		};
 	}
-	,createBoss: function() {
-		return new model_domain_enemy_DashToPlayerEnemy(this.collisions,new model_core_Position(0,0),new model_core_Tag(model_domain_TagName.enemy),{ });
+	,boss: function() {
+		var _g = this;
+		var collision = new model_domain_enemy_FirstStageBoss(this.collisions);
+		collision.registerDead(function() {
+			_g.bossDead = true;
+		});
+		this.push([collision]);
 	}
 	,createItemWhenEnemyDead: function(collision) {
 		var _g = this;
@@ -907,6 +912,7 @@ model_domain_StageModel.createStage1Model = function(size,onCreateListener,onDes
 };
 model_domain_StageModel.prototype = {
 	setup: function(size,stage,onCreateListener,onDestoryListener) {
+		this.stage = stage;
 		this.timelineStage = new model_core_TimelineStage(stage.timelineEvent);
 		this.stageStepCore = new model_core_StageStepCore(this.collisions,size,$bind(this,this.getStageEndConditionResult),this);
 		this.collisions.setObserver(onCreateListener,onDestoryListener);
@@ -918,6 +924,7 @@ model_domain_StageModel.prototype = {
 		player.registerDead($bind(this,this.addNewPlayer));
 	}
 	,getStageEndConditionResult: function() {
+		if(this.stage.bossDead) return new model_core_StageEndConditionResult(true,"bossdead");
 		return new model_core_StageEndConditionResult(false);
 	}
 	,onStart: function() {
@@ -926,6 +933,7 @@ model_domain_StageModel.prototype = {
 		this.timelineStage.step();
 	}
 	,onEnd: function(couse) {
+		console.log(couse);
 	}
 	,__class__: model_domain_StageModel
 };
@@ -953,6 +961,65 @@ model_domain_enemy_DashToPlayerEnemy.__name__ = ["model","domain","enemy","DashT
 model_domain_enemy_DashToPlayerEnemy.__super__ = model_core_SteppablePositionCollision;
 model_domain_enemy_DashToPlayerEnemy.prototype = $extend(model_core_SteppablePositionCollision.prototype,{
 	__class__: model_domain_enemy_DashToPlayerEnemy
+});
+var model_domain_enemy_FirstStageBoss = function(collisions) {
+	this.children = [];
+	this.frame = 0;
+	this.directionChangeInterval = 70;
+	this.moveStatus = 0;
+	model_core_Collision.call(this,model_core_CollisionParams.circle({ r : 8, hp : 300, ap : 10, tagNames : [model_domain_TagName.enemy,model_domain_TagName.boss]}),new model_core_Position(40,40));
+	this.collisions = collisions;
+};
+model_domain_enemy_FirstStageBoss.__name__ = ["model","domain","enemy","FirstStageBoss"];
+model_domain_enemy_FirstStageBoss.__super__ = model_core_Collision;
+model_domain_enemy_FirstStageBoss.prototype = $extend(model_core_Collision.prototype,{
+	onCreate: function() {
+		var _g = 0;
+		while(_g < 12) {
+			var i = _g++;
+			var degree = i * 30;
+			var c = new model_core_Collision(model_core_CollisionParams.circle({ r : 8, hp : 30, ap : 10, tagNames : [model_domain_TagName.enemy,model_domain_TagName.bosschild]}),new model_core_Position(0,0));
+			this.children.push(c);
+			this.collisions.enemies.push(c);
+		}
+	}
+	,onDead: function() {
+	}
+	,onStep: function() {
+		var moveStatus = Math.floor(this.frame / this.directionChangeInterval) % 4;
+		var _g = Math.floor(this.frame / this.directionChangeInterval) % 4;
+		switch(_g) {
+		case 0:
+			this.pos.x += model_domain_enemy_FirstStageBoss.SPEED;
+			break;
+		case 1:
+			this.pos.y += model_domain_enemy_FirstStageBoss.SPEED;
+			break;
+		case 2:
+			this.pos.x -= model_domain_enemy_FirstStageBoss.SPEED;
+			break;
+		case 3:
+			this.pos.y -= model_domain_enemy_FirstStageBoss.SPEED;
+			break;
+		default:
+			throw new js__$Boot_HaxeError("バグってる");
+		}
+		var radius = 40;
+		var _g1 = 0;
+		while(_g1 < 12) {
+			var i = _g1++;
+			var degree = i * 30 + this.frame;
+			var c = this.children[i];
+			var th = degree * Math.PI / 180;
+			c.pos.x = radius * Math.cos(th) + this.pos.x;
+			c.pos.y = radius * Math.sin(th) + this.pos.y;
+		}
+		if(this.frame % model_domain_enemy_FirstStageBoss.SHOT_INTERVAL == model_domain_enemy_FirstStageBoss.SHOT_INTERVAL - 1) this.collisions.enemyShots.push(new model_domain_enemy_DashToPlayerEnemy(this.collisions,this.pos,new model_core_Tag(model_domain_TagName.enemyshot),{ radius : 2}));
+		this.frame++;
+	}
+	,onTerminate: function() {
+	}
+	,__class__: model_domain_enemy_FirstStageBoss
 });
 var model_domain_enemy_StraightAndShotEnemy = function(collisions,orgPosition,speed) {
 	if(speed == null) speed = 3;
@@ -1069,6 +1136,10 @@ model_domain_TagName.enemy = "enemy";
 model_domain_TagName.enemyshot = "enemyshot";
 model_domain_TagName.doubleshot = Std.string(model_domain_item_ItemType.doubleshot);
 model_domain_TagName.lifeup = Std.string(model_domain_item_ItemType.lifeup);
+model_domain_TagName.boss = "boss";
+model_domain_TagName.bosschild = "bosschild";
+model_domain_enemy_FirstStageBoss.SPEED = 3;
+model_domain_enemy_FirstStageBoss.SHOT_INTERVAL = 30;
 model_domain_shot_WeekShot.SPEED = 5;
 model_domain_shot_WeekShot.RADIUS = 2;
 model_domain_shot_WeekShot.HP = 1;

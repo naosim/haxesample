@@ -70,6 +70,13 @@ var createEnemy = function (c) {
     return result;
 }
 
+var createBossEnemy = function (c) {
+    var result = createCommonSprite(c);
+    result.frame = 11;
+    result.image = game.assets[image.icon0];
+    return result;
+}
+
 var createEnemyShot = function (c) {
     var result = createCommonSprite(c);
     result.frame = 45;
@@ -116,7 +123,12 @@ game.onload = function () {
             } else if (c.hasTag("shot")) {
                 sprite = createShot(c);
             } else if (c.hasTag("enemy")) {
-                sprite = createEnemy(c);
+                if(c.hasTag("boss")) {
+                    sprite = createBossEnemy(c);
+                } else {
+                    sprite = createEnemy(c);
+                }
+
             } else if (c.hasTag("enemyshot")) {
                 sprite = createEnemyShot(c);
             } else if (c.hasTag("item")) {

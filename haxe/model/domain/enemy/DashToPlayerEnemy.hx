@@ -13,6 +13,6 @@ class DashToPlayerEnemy extends SteppablePositionCollision {
         var ap = options.ap != null ? options.ap : 10;
         var direction = collisions.player().getPlayerDirectionFrom(orgPosition).multipl(speed);
         var movePos = SteppablePosition.linear(orgPosition, direction);
-        super(CollisionParams.circle({r: radius, hp: 1, ap: ap, tag: tag}), Position.zero());
+        super(CollisionParams.circle({r: radius, hp: 1, ap: ap, tag: tag}), movePos);
     }
 }
