@@ -836,6 +836,7 @@ model_domain_WorldStatus.__name__ = ["model","domain","WorldStatus"];
 var model_domain_Stage = function(collisions) {
 	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(280)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.dashOneself(50)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(0)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH))];
 	this.collisions = collisions;
+	this.boss = this.createBoss();
 };
 model_domain_Stage.__name__ = ["model","domain","Stage"];
 model_domain_Stage.__interfaces__ = [model_core_Step];
@@ -877,6 +878,9 @@ model_domain_Stage.prototype = {
 			}
 			_g1.push(result);
 		};
+	}
+	,createBoss: function() {
+		return new model_domain_enemy_DashToPlayerEnemy(this.collisions,new model_core_Position(0,0),new model_core_Tag(model_domain_TagName.enemy),{ });
 	}
 	,createItemWhenEnemyDead: function(collision) {
 		var _g = this;

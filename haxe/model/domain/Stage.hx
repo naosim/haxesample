@@ -16,6 +16,7 @@ class Stage implements Step {
 
     public var timelineEvent:Array<TimelineEvent>;
     var collisions:SimpleCollisions;
+    var boss:Collision;
 
     public function new(collisions:SimpleCollisions) {
         timelineEvent = [
@@ -24,8 +25,10 @@ class Stage implements Step {
             new TimelineEvent(3 * FPS, this.dashOneself(50)),
             new TimelineEvent(3 * FPS, this.straighatAndShot(0)),
             new TimelineEvent(3 * FPS, this.straighatAndShot(WorldStatus.WIDTH))
+//            new TimelineEvent(3 * FPS, this.showBoss)
         ];
         this.collisions = collisions;
+        this.boss = createBoss();
 
     }
 
@@ -59,6 +62,14 @@ class Stage implements Step {
         }
     }
 
+    function createBoss() {
+        return new DashToPlayerEnemy(collisions, new Position(0, 0), new Tag(TagName.enemy), {});
+    }
+//
+//    function showBoss():Array<Collision> {
+//        return [boss];
+//    }
+
     function createItemWhenEnemyDead(collision:Collision) {
         collision.registerDead(function() {
             collisions.items.push(createItem(collision.pos));
@@ -68,4 +79,5 @@ class Stage implements Step {
     function createItem(orgPos:Position):Collision {
         return new ItemFactory(collisions).create(orgPos, ItemType.doubleshot);
     }
+
 }
