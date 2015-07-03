@@ -513,18 +513,37 @@ model_core_Position.prototype = {
 	}
 	,__class__: model_core_Position
 };
-var model_core_StageStepCore = function(eachCollision,size,stepListener) {
+var model_core_StageEndConditionResult = function(result,couse) {
+	this.result = result;
+	this.couse = couse;
+};
+model_core_StageEndConditionResult.__name__ = ["model","core","StageEndConditionResult"];
+model_core_StageEndConditionResult.prototype = {
+	__class__: model_core_StageEndConditionResult
+};
+var model_core_StageLifeCycle = function() { };
+model_core_StageLifeCycle.__name__ = ["model","core","StageLifeCycle"];
+model_core_StageLifeCycle.prototype = {
+	__class__: model_core_StageLifeCycle
+};
+var model_core_StageStepCore = function(eachCollision,size,stageEndCondision,stageLifeCycle) {
+	this.isCalledOnEnd = false;
+	this.isFirstStep = true;
 	this.eachCollision = eachCollision;
 	this.size = size;
-	if(stepListener != null) this.stepListener = stepListener; else this.stepListener = function() {
-	};
+	this.stageEndCondision = stageEndCondision;
+	this.stageLifeCycle = stageLifeCycle;
 };
 model_core_StageStepCore.__name__ = ["model","core","StageStepCore"];
 model_core_StageStepCore.__interfaces__ = [model_core_Terminatable,model_core_Step];
 model_core_StageStepCore.prototype = {
 	step: function() {
 		var _g = this;
-		this.stepListener();
+		if(this.isFirstStep) {
+			this.stageLifeCycle.onStart();
+			this.isFirstStep = false;
+		}
+		this.stageLifeCycle.onStep();
 		this.eachCollision.eachCollision(function(c) {
 			c.step();
 		});
@@ -544,6 +563,11 @@ model_core_StageStepCore.prototype = {
 			var c5 = deads[_g1];
 			++_g1;
 			c5.terminate();
+		}
+		var result = this.stageEndCondision();
+		if(!this.isCalledOnEnd && result.result) {
+			this.stageLifeCycle.onEnd(result.couse);
+			this.isCalledOnEnd = true;
 		}
 	}
 	,isOutOfWorld: function(c) {
@@ -869,6 +893,7 @@ var model_domain_StageModel = $hx_exports.model.domain.StageModel = function() {
 	this.collisions = new model_domain_SimpleCollisions();
 };
 model_domain_StageModel.__name__ = ["model","domain","StageModel"];
+model_domain_StageModel.__interfaces__ = [model_core_StageLifeCycle];
 model_domain_StageModel.main = function() {
 };
 model_domain_StageModel.createStage1Model = function(size,onCreateListener,onDestoryListener) {
@@ -878,8 +903,8 @@ model_domain_StageModel.createStage1Model = function(size,onCreateListener,onDes
 };
 model_domain_StageModel.prototype = {
 	setup: function(size,stage,onCreateListener,onDestoryListener) {
-		var timelineStage = new model_core_TimelineStage(stage.timelineEvent);
-		this.gameCore = new model_core_StageStepCore(this.collisions,size,$bind(timelineStage,timelineStage.step));
+		this.timelineStage = new model_core_TimelineStage(stage.timelineEvent);
+		this.stageStepCore = new model_core_StageStepCore(this.collisions,size,$bind(this,this.getStageEndConditionResult),this);
 		this.collisions.setObserver(onCreateListener,onDestoryListener);
 		this.addNewPlayer();
 	}
@@ -887,6 +912,16 @@ model_domain_StageModel.prototype = {
 		var player = new model_domain_Player(this.collisions,new model_core_Position(model_domain_WorldStatus.WIDTH / 2,240));
 		this.collisions.players.push(player);
 		player.registerDead($bind(this,this.addNewPlayer));
+	}
+	,getStageEndConditionResult: function() {
+		return new model_core_StageEndConditionResult(false);
+	}
+	,onStart: function() {
+	}
+	,onStep: function() {
+		this.timelineStage.step();
+	}
+	,onEnd: function(couse) {
 	}
 	,__class__: model_domain_StageModel
 };

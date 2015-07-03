@@ -1,18 +1,29 @@
 package model.core;
 
-class StageStepCore implements Step implements Terminatable {
+class StageStepCore<T> implements Step implements Terminatable {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
-    var stepListener:Void -> Void;
+    var stageEndCondision:Void -> StageEndConditionResult<T>;
+    var stageLifeCycle:StageLifeCycle<T>;
 
-    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, ?stepListener:Void -> Void) {
+    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, stageEndCondision:Void -> StageEndConditionResult<T>, stageLifeCycle:StageLifeCycle<T>) {
         this.eachCollision = eachCollision;
         this.size = size;
-        this.stepListener = stepListener != null ? stepListener : function():Void {};
+        this.stageEndCondision = stageEndCondision;
+        this.stageLifeCycle = stageLifeCycle;
+
     }
 
+    var isFirstStep = true;
+    var isCalledOnEnd = false;
+
     public function step() {
-        stepListener();
+        if (isFirstStep) {
+            stageLifeCycle.onStart();
+            isFirstStep = false;
+        }
+        stageLifeCycle.onStep();
+
 // 全体を移動させる
         eachCollision.eachCollision(function(c:Collision) { c.step(); });
 // 全体を衝突させる
@@ -31,6 +42,13 @@ class StageStepCore implements Step implements Terminatable {
 
 // 死んだ残骸処理
         for (c in deads) c.terminate();
+
+// ステージ終了処理(ステージ終了後もstep自体は呼べる)
+        var result = stageEndCondision();
+        if (!isCalledOnEnd && result.result) {
+            stageLifeCycle.onEnd(result.couse);
+            isCalledOnEnd = true;
+        }
     }
 
     private function isOutOfWorld(c:Collision):Bool {

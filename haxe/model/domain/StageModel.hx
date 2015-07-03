@@ -1,15 +1,18 @@
 package model.domain;
+import model.core.StageLifeCycle;
+import model.core.StageEndConditionResult;
 import model.core.Position;
 import model.core.TimelineStage;
 import model.core.Collision;
 import model.core.StageStepCore;
 
 @:expose
-class StageModel {
+class StageModel implements StageLifeCycle<String> {
     static public function main() {}
 
-    public var stageStepCore:StageStepCore;
+    public var stageStepCore:StageStepCore<String>;
     public var collisions:SimpleCollisions = new SimpleCollisions();
+    var timelineStage:TimelineStage;
 
     public function new() {
     }
@@ -20,10 +23,8 @@ class StageModel {
         onCreateListener:Collision -> Void,
         onDestoryListener:Collision -> Void
     ) {
-        var timelineStage = new TimelineStage(stage.timelineEvent);
-
-        stageStepCore = new StageStepCore(collisions, size, timelineStage.step);
-
+        this.timelineStage = new TimelineStage(stage.timelineEvent);
+        stageStepCore = new StageStepCore<String>(collisions, size, getStageEndConditionResult, this);
         collisions.setObserver(onCreateListener, onDestoryListener);
         addNewPlayer();
     }
@@ -43,4 +44,17 @@ class StageModel {
         result.setup(size, new Stage(result.collisions), onCreateListener, onDestoryListener);
         return result;
     }
+
+    function getStageEndConditionResult() {
+        return new StageEndConditionResult(false);
+    }
+
+
+    public function onStart():Void {}
+
+    public function onStep():Void {
+        timelineStage.step();
+    }
+
+    public function onEnd(couse:String):Void {}
 }

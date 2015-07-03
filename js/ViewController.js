@@ -146,7 +146,7 @@ game.onload = function () {
     });
 
     game.rootScene.addEventListener('enterframe', function () {
-        stageModel.gameCore.step();
+        stageModel.stageStepCore.step();
     });
 };
 
