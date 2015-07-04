@@ -115,41 +115,40 @@ var showExplosion = function (pos) {
 
 game.onload = function () {
     var stageModel = model.domain.StageModel.createStage1Model(
-//    Main.setupStage1(
         {width: 320, height: 320},
-        function (c) {
-            var sprite;
-            if (c.hasTag("player")) {
-                sprite = player = createPlayer(c);
-            } else if (c.hasTag("shot")) {
-                sprite = createShot(c);
-            } else if (c.hasTag("enemy")) {
-                if(c.hasTag("boss")) {
-                    sprite = createBossEnemy(c);
-                } else {
-                    sprite = createEnemy(c);
+        {
+            onCreateCollision:function (c) {
+                var sprite;
+                if (c.hasTag("player")) {
+                  sprite = player = createPlayer(c);
+                } else if (c.hasTag("shot")) {
+                  sprite = createShot(c);
+                } else if (c.hasTag("enemy")) {
+                  if(c.hasTag("boss")) {
+                      sprite = createBossEnemy(c);
+                  } else {
+                      sprite = createEnemy(c);
+                  }
+
+                } else if (c.hasTag("enemyshot")) {
+                  sprite = createEnemyShot(c);
+                } else if (c.hasTag("item")) {
+                  if (c.hasTag("doubleshot")) sprite = createDoubleShotItem(c);
+                  else if (c.hasTag("lifeup")) sprite = createLifeUpItem(c);
                 }
 
-            } else if (c.hasTag("enemyshot")) {
-                sprite = createEnemyShot(c);
-            } else if (c.hasTag("item")) {
-                if (c.hasTag("doubleshot")) sprite = createDoubleShotItem(c);
-                else if (c.hasTag("lifeup")) sprite = createLifeUpItem(c);
-            }
+                if (sprite) {
+                  c.sprite = sprite;
+                  game.rootScene.addChild(sprite);
+                }
 
-            if (sprite) {
-                c.sprite = sprite;
-                game.rootScene.addChild(sprite);
+                                      },
+            onDestroyCollision: function (c) {// 死んだとき
+                game.rootScene.removeChild(c.sprite);
+                if (c.hasTag('shot') || c.hasTag('enemyshot')) showExplosion(c.pos);
+                console.log("delete");
+                c.sprite = null;
             }
-
-        },
-        function (c) {// 死んだとき
-            game.rootScene.removeChild(c.sprite);
-            if (c.hasTag('shot') || c.hasTag('enemyshot')) showExplosion(c.pos);
-            console.log("delete");
-            // 念のため解放
-//            if(c.sprite.playerCollision)c.sprite.playerCollision = null;
-            c.sprite = null;
         });
 
     game.addEventListener('abuttondown', function () {

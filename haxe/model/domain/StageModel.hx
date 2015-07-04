@@ -14,6 +14,7 @@ class StageModel implements StageLifeCycle<String> {
     public var collisions:SimpleCollisions = new SimpleCollisions();
     var stage: Stage;
     var timelineStage:TimelineStage;
+    var callback: StageModelCallback;
 
     var life = 5;
 
@@ -23,13 +24,13 @@ class StageModel implements StageLifeCycle<String> {
     public function setup(
         size:{width:Float, height:Float},
         stage:Stage,
-        onCreateListener:Collision -> Void,
-        onDestoryListener:Collision -> Void
+        callback: StageModelCallback
     ) {
         this.stage = stage;
+        this.callback = callback;
         this.timelineStage = new TimelineStage(stage.timelineEvent);
         stageStepCore = new StageStepCore<String>(collisions, size, this);
-        collisions.setObserver(onCreateListener, onDestoryListener);
+        collisions.setObserver(callback.onCreateCollision, callback.onDestroyCollision);
         addNewPlayer();
     }
 
@@ -43,11 +44,11 @@ class StageModel implements StageLifeCycle<String> {
 
     static public function createStage1Model(
         size:{width:Float, height:Float},
-        onCreateListener:Collision -> Void,
-        onDestoryListener:Collision -> Void
+        callback: StageModelCallback
     ) {
         var result = new StageModel();
-        result.setup(size, new Stage(result.collisions), onCreateListener, onDestoryListener);
+        var stage = new Stage(result.collisions);
+        result.setup(size, stage, callback);
         return result;
     }
 
@@ -59,7 +60,9 @@ class StageModel implements StageLifeCycle<String> {
     }
 
 
-    public function onStart():Void {}
+    public function onStart():Void {
+        if(callback.onStartStage != null)callback.onStartStage();
+    }
 
     public function onStep():Void {
         timelineStage.step();
@@ -67,5 +70,14 @@ class StageModel implements StageLifeCycle<String> {
 
     public function onEnd(couse:String):Void {
         trace(couse);
+        if(callback.onEndStage != null)callback.onEndStage(couse);
     }
+
+}
+// JSへのコールバックを想定
+typedef StageModelCallback = {
+    ?onCreateCollision:Collision -> Void,
+    ?onDestroyCollision:Collision -> Void,
+    ?onStartStage:Void -> Void,
+    ?onEndStage:String -> Void,
 }

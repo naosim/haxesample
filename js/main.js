@@ -943,17 +943,19 @@ model_domain_StageModel.__name__ = ["model","domain","StageModel"];
 model_domain_StageModel.__interfaces__ = [model_core_StageLifeCycle];
 model_domain_StageModel.main = function() {
 };
-model_domain_StageModel.createStage1Model = function(size,onCreateListener,onDestoryListener) {
+model_domain_StageModel.createStage1Model = function(size,callback) {
 	var result = new model_domain_StageModel();
-	result.setup(size,new model_domain_Stage(result.collisions),onCreateListener,onDestoryListener);
+	var stage = new model_domain_Stage(result.collisions);
+	result.setup(size,stage,callback);
 	return result;
 };
 model_domain_StageModel.prototype = {
-	setup: function(size,stage,onCreateListener,onDestoryListener) {
+	setup: function(size,stage,callback) {
 		this.stage = stage;
+		this.callback = callback;
 		this.timelineStage = new model_core_TimelineStage(stage.timelineEvent);
 		this.stageStepCore = new model_core_StageStepCore(this.collisions,size,this);
-		this.collisions.setObserver(onCreateListener,onDestoryListener);
+		this.collisions.setObserver(callback.onCreateCollision,callback.onDestroyCollision);
 		this.addNewPlayer();
 	}
 	,addNewPlayer: function() {
@@ -968,12 +970,14 @@ model_domain_StageModel.prototype = {
 		return new model_core_StageEndConditionResult(false);
 	}
 	,onStart: function() {
+		if(this.callback.onStartStage != null) this.callback.onStartStage();
 	}
 	,onStep: function() {
 		this.timelineStage.step();
 	}
 	,onEnd: function(couse) {
 		console.log(couse);
+		if(this.callback.onEndStage != null) this.callback.onEndStage(couse);
 	}
 	,__class__: model_domain_StageModel
 };
