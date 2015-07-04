@@ -22,7 +22,7 @@ var player = null;
 Sprite.prototype.setCenter = function (pos) {
     this.x = Math.floor(pos.x - this.width / 2);
     this.y = Math.floor(pos.y - this.height / 2);
-}
+};
 
 var createPlayer = function (c) {
     var bear = new Sprite(32, 32);
@@ -45,59 +45,47 @@ var createPlayer = function (c) {
         console.log(str, after);
     });
     return bear;
-}
+};
 
 var createCommonSprite = function (c) {
     var result = new Sprite(16, 16);
-//    result.collision = c;
     result.setCenter(c.pos);
     result.addEventListener('enterframe', function () {
         result.setCenter(c.pos);
     });
     return result;
-}
+};
+
+var createSpriteWith = function (c, frame, image) {
+    var result = createCommonSprite(c);
+    result.frame = frame;
+    result.image = game.assets[image];
+    return result;
+};
 
 var createShot = function (c) {
-    var result = createCommonSprite(c);
-    result.frame = 48;
-    result.image = game.assets[image.icon0];
-    return result;
-}
+    return createSpriteWith(c, 48, image.icon0);
+};
 
 var createEnemy = function (c) {
-    var result = createCommonSprite(c);
-    result.frame = 16;
-    result.image = game.assets[image.icon0];
-    return result;
-}
+    return createSpriteWith(c, 16, image.icon0);
+};
 
 var createBossEnemy = function (c) {
-    var result = createCommonSprite(c);
-    result.frame = 11;
-    result.image = game.assets[image.icon0];
-    return result;
-}
+    return createSpriteWith(c, 11, image.icon0);
+};
 
 var createEnemyShot = function (c) {
-    var result = createCommonSprite(c);
-    result.frame = 45;
-    result.image = game.assets[image.icon0];
-    return result;
-}
+    return createSpriteWith(c, 45, image.icon0);
+};
 
 var createDoubleShotItem = function (c) {
-    var result = createCommonSprite(c);
-    result.frame = 30;
-    result.image = game.assets[image.icon0];
-    return result;
-}
+    return createSpriteWith(c, 30, image.icon0);
+};
 
 var createLifeUpItem = function (c) {
-    var result = createCommonSprite(c);
-    result.frame = 14;
-    result.image = game.assets[image.icon0];
-    return result;
-}
+    return createSpriteWith(c, 14, image.icon0);
+};
 
 var showExplosion = function (pos) {
     var result = new Sprite(16, 16);
