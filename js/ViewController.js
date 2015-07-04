@@ -28,6 +28,7 @@ var createPlayer = function (c) {
     var bear = new Sprite(32, 32);
     bear.playerCollision = c;
     bear.image = game.assets[image.chara1];
+    bear.setCenter(c.pos);
     bear.addEventListener('enterframe', function () {
         bear.setCenter(c.pos);
 

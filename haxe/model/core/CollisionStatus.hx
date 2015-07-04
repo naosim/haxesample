@@ -3,8 +3,9 @@ package model.core;
 import model.core.lib.ObservableValue;
 class CollisionStatus implements Terminatable {
     public var hitPoint:HitPoint;
-    public var attackPoint:Int;
+    var attackPoint:Int;
     public var terminated:Bool = false;
+    var isAir = false;
     var isDeadObservable:ObservableValue<Bool> = new ObservableValue<Bool>(false);
 
     public function new(hitPoint:HitPoint, attackPoint:Int) {
@@ -15,8 +16,17 @@ class CollisionStatus implements Terminatable {
         });
     }
 
+    function getAttackPoint() {
+        return !isAir ? attackPoint : 0;
+    }
+
+    public function setIsAir(isAir:Bool) {
+        this.isAir = isAir;
+        hitPoint.setIsRigid(isAir);
+    }
+
     public function attackedFrom(other:CollisionStatus) {
-        hitPoint.addValue(-other.attackPoint);
+        hitPoint.addValue(-other.getAttackPoint());
     }
 
     public function eachAttacked(other:CollisionStatus) {

@@ -3,15 +3,12 @@ package model.core;
 class StageStepCore<T> implements Step implements Terminatable {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
-    var stageEndCondision:Void -> StageEndConditionResult<T>;
     var stageLifeCycle:StageLifeCycle<T>;
 
-    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, stageEndCondision:Void -> StageEndConditionResult<T>, stageLifeCycle:StageLifeCycle<T>) {
+    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, stageLifeCycle:StageLifeCycle<T>) {
         this.eachCollision = eachCollision;
         this.size = size;
-        this.stageEndCondision = stageEndCondision;
         this.stageLifeCycle = stageLifeCycle;
-
     }
 
     var isFirstStep = true;
@@ -25,7 +22,9 @@ class StageStepCore<T> implements Step implements Terminatable {
         stageLifeCycle.onStep();
 
 // 全体を移動させる
-        eachCollision.eachCollision(function(c:Collision) { c.step(); });
+        eachCollision.eachCollision(function(c:Collision) {
+            c.step();
+        });
 // 全体を衝突させる
         eachCollision.eachHitCollisionPair(function(c1:Collision, c2:Collision) {
             if (CollisionHitTest.hitTest(c1, c2)) {
@@ -44,7 +43,7 @@ class StageStepCore<T> implements Step implements Terminatable {
         for (c in deads) c.terminate();
 
 // ステージ終了処理(ステージ終了後もstep自体は呼べる)
-        var result = stageEndCondision();
+        var result = stageLifeCycle.getStageEndCondisionResult();
         if (!isCalledOnEnd && result.result) {
             stageLifeCycle.onEnd(result.couse);
             isCalledOnEnd = true;

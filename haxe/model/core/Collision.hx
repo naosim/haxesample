@@ -60,6 +60,10 @@ class Collision implements Step implements Terminatable implements CollisionLife
         deadObserver.remove(o);
     }
 
+    public function setIsAir(isAir:Bool) {
+        status.setIsAir(isAir);
+    }
+
     public function terminate():Void {
         onTerminate();
         status.terminate();

@@ -290,6 +290,9 @@ model_core_Collision.prototype = {
 	,unregisterDead: function(o) {
 		HxOverrides.remove(this.deadObserver,o);
 	}
+	,setIsAir: function(isAir) {
+		this.status.setIsAir(isAir);
+	}
 	,terminate: function() {
 		this.onTerminate();
 		this.status.terminate();
@@ -353,6 +356,7 @@ model_core_CollisionParams.prototype = {
 };
 var model_core_CollisionStatus = function(hitPoint,attackPoint) {
 	this.isDeadObservable = new model_core_lib_ObservableValue(false);
+	this.isAir = false;
 	this.terminated = false;
 	var _g = this;
 	this.hitPoint = hitPoint;
@@ -364,8 +368,15 @@ var model_core_CollisionStatus = function(hitPoint,attackPoint) {
 model_core_CollisionStatus.__name__ = ["model","core","CollisionStatus"];
 model_core_CollisionStatus.__interfaces__ = [model_core_Terminatable];
 model_core_CollisionStatus.prototype = {
-	attackedFrom: function(other) {
-		this.hitPoint.addValue(-other.attackPoint);
+	getAttackPoint: function() {
+		if(!this.isAir) return this.attackPoint; else return 0;
+	}
+	,setIsAir: function(isAir) {
+		this.isAir = isAir;
+		this.hitPoint.setIsRigid(isAir);
+	}
+	,attackedFrom: function(other) {
+		this.hitPoint.addValue(-other.getAttackPoint());
 	}
 	,eachAttacked: function(other) {
 		this.attackedFrom(other);
@@ -469,8 +480,11 @@ model_core_lib_ObservableFloat.prototype = $extend(model_core_lib_ObservableValu
 });
 var model_core_HitPoint = function(value) {
 	this._isRigid = false;
+	if(value == null) {
+		this._isRigid = true;
+		value = 0;
+	}
 	model_core_lib_ObservableFloat.call(this,value);
-	if(value == null) this._isRigid = true;
 };
 model_core_HitPoint.__name__ = ["model","core","HitPoint"];
 model_core_HitPoint.__super__ = model_core_lib_ObservableFloat;
@@ -478,8 +492,17 @@ model_core_HitPoint.prototype = $extend(model_core_lib_ObservableFloat.prototype
 	isRigid: function() {
 		return this._isRigid;
 	}
+	,setIsRigid: function(isRigid) {
+		this._isRigid = isRigid;
+	}
 	,isDead: function() {
 		return !this._isRigid && this.value <= 0;
+	}
+	,addValue: function(value) {
+		if(!this.isRigid()) model_core_lib_ObservableFloat.prototype.addValue.call(this,value);
+	}
+	,setValue: function(value) {
+		if(!this.isRigid()) model_core_lib_ObservableFloat.prototype.setValue.call(this,value);
 	}
 	,__class__: model_core_HitPoint
 });
@@ -526,12 +549,11 @@ model_core_StageLifeCycle.__name__ = ["model","core","StageLifeCycle"];
 model_core_StageLifeCycle.prototype = {
 	__class__: model_core_StageLifeCycle
 };
-var model_core_StageStepCore = function(eachCollision,size,stageEndCondision,stageLifeCycle) {
+var model_core_StageStepCore = function(eachCollision,size,stageLifeCycle) {
 	this.isCalledOnEnd = false;
 	this.isFirstStep = true;
 	this.eachCollision = eachCollision;
 	this.size = size;
-	this.stageEndCondision = stageEndCondision;
 	this.stageLifeCycle = stageLifeCycle;
 };
 model_core_StageStepCore.__name__ = ["model","core","StageStepCore"];
@@ -564,7 +586,7 @@ model_core_StageStepCore.prototype = {
 			++_g1;
 			c5.terminate();
 		}
-		var result = this.stageEndCondision();
+		var result = this.stageLifeCycle.getStageEndCondisionResult();
 		if(!this.isCalledOnEnd && result.result) {
 			this.stageLifeCycle.onEnd(result.couse);
 			this.isCalledOnEnd = true;
@@ -718,43 +740,58 @@ model_core_shape_Circle.prototype = {
 	}
 	,__class__: model_core_shape_Circle
 };
-var model_domain_Player = $hx_exports.model.domain.Player = function(collisions,pos) {
+var model_domain_Player = $hx_exports.model.domain.Player = function(collisions) {
+	this.frame = 0;
 	this.createShots = model_domain_shot_WeekShot.create;
+	this.controlLocked = true;
 	this.speed = 3;
-	var params = model_core_CollisionParams.circle({ r : 8, hp : model_domain_Player.MAX_LIFE, ap : 20, tagName : model_domain_TagName.player});
-	model_core_Collision.call(this,params,pos);
+	var params = model_core_CollisionParams.circle({ r : 8, hp : 50, ap : 20, tagName : model_domain_TagName.player});
+	model_core_Collision.call(this,params,new model_core_Position(model_domain_WorldStatus.WIDTH / 2,model_domain_WorldStatus.HEIGHT + 10));
 	this.collisions = collisions;
 	this.registerHitPoint(function(before,afterFloat) {
 	});
+	this.setIsAir(true);
 };
 model_domain_Player.__name__ = ["model","domain","Player"];
 model_domain_Player.__super__ = model_core_Collision;
 model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
-	step: function() {
-	}
-	,up: function() {
+	up: function() {
+		if(this.controlLocked) return;
 		this.pos.y = this.pos.y - this.speed;
 	}
 	,down: function() {
+		if(this.controlLocked) return;
 		this.pos.y = this.pos.y + this.speed;
 	}
 	,right: function() {
+		if(this.controlLocked) return;
 		this.pos.x = this.pos.x + this.speed;
 	}
 	,left: function() {
+		if(this.controlLocked) return;
 		this.pos.x = this.pos.x - this.speed;
 	}
 	,shot: function() {
+		if(this.controlLocked) return;
 		var shots = this.createShots(this.collisions,new model_core_Position(this.pos.x,this.pos.y - 8));
 		if(shots != null) this.collisions.shots.pushAll(shots);
 	}
 	,lifeUp: function(value) {
-		value = Math.min(this.status.hitPoint.getValue() + value,model_domain_Player.MAX_LIFE);
+		value = Math.min(this.status.hitPoint.getValue() + value,model_domain_Player.MAX_HP);
 		this.status.hitPoint.setValue(value);
 	}
 	,getPlayerDirectionFrom: function(org) {
 		if(this.collisions.players.length() == 0) return new model_core_Position(0,1);
 		return org.directionTo(this.pos);
+	}
+	,onStep: function() {
+		model_core_Collision.prototype.onStep.call(this);
+		if(this.frame < 30) this.pos.y -= 2;
+		if(this.frame == 30) {
+			this.setIsAir(false);
+			this.controlLocked = false;
+		}
+		this.frame++;
 	}
 	,__class__: model_domain_Player
 });
@@ -899,6 +936,7 @@ model_domain_Stage.prototype = {
 	,__class__: model_domain_Stage
 };
 var model_domain_StageModel = $hx_exports.model.domain.StageModel = function() {
+	this.life = 5;
 	this.collisions = new model_domain_SimpleCollisions();
 };
 model_domain_StageModel.__name__ = ["model","domain","StageModel"];
@@ -914,16 +952,18 @@ model_domain_StageModel.prototype = {
 	setup: function(size,stage,onCreateListener,onDestoryListener) {
 		this.stage = stage;
 		this.timelineStage = new model_core_TimelineStage(stage.timelineEvent);
-		this.stageStepCore = new model_core_StageStepCore(this.collisions,size,$bind(this,this.getStageEndConditionResult),this);
+		this.stageStepCore = new model_core_StageStepCore(this.collisions,size,this);
 		this.collisions.setObserver(onCreateListener,onDestoryListener);
 		this.addNewPlayer();
 	}
 	,addNewPlayer: function() {
-		var player = new model_domain_Player(this.collisions,new model_core_Position(model_domain_WorldStatus.WIDTH / 2,240));
+		if(this.life <= 0) return;
+		var player = new model_domain_Player(this.collisions);
 		this.collisions.players.push(player);
 		player.registerDead($bind(this,this.addNewPlayer));
+		this.life--;
 	}
-	,getStageEndConditionResult: function() {
+	,getStageEndCondisionResult: function() {
 		if(this.stage.bossDead) return new model_core_StageEndConditionResult(true,"bossdead");
 		return new model_core_StageEndConditionResult(false);
 	}
@@ -953,9 +993,11 @@ var model_domain_enemy_DashToPlayerEnemy = function(collisions,orgPosition,tag,o
 	if(options.radius != null) radius = options.radius; else radius = 8;
 	var ap;
 	if(options.ap != null) ap = options.ap; else ap = 10;
-	var direction = collisions.player().getPlayerDirectionFrom(orgPosition).multipl(speed);
-	var movePos = model_core_SteppablePosition.linear(orgPosition,direction);
-	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : radius, hp : 1, ap : ap, tag : tag}),movePos);
+	if(collisions.player() == null) model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : radius, hp : 1, ap : ap, tag : tag}),model_core_SteppablePosition.linear(new model_core_Position(-10,-10),new model_core_Position(-1,-1))); else {
+		var direction = collisions.player().getPlayerDirectionFrom(orgPosition).multipl(speed);
+		var movePos = model_core_SteppablePosition.linear(orgPosition,direction);
+		model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : radius, hp : 1, ap : ap, tag : tag}),movePos);
+	}
 };
 model_domain_enemy_DashToPlayerEnemy.__name__ = ["model","domain","enemy","DashToPlayerEnemy"];
 model_domain_enemy_DashToPlayerEnemy.__super__ = model_core_SteppablePositionCollision;
@@ -1124,7 +1166,7 @@ model_core_GravityPositionStep.DOWN = 0;
 model_core_GravityPositionStep.UP = 1;
 model_core_GravityPositionStep.RIGHT = 2;
 model_core_GravityPositionStep.LEFT = 3;
-model_domain_Player.MAX_LIFE = 50;
+model_domain_Player.MAX_HP = 50;
 model_domain_WorldStatus.FPS = 30;
 model_domain_WorldStatus.WIDTH = 320;
 model_domain_WorldStatus.HEIGHT = 320;

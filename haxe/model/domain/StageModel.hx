@@ -15,6 +15,8 @@ class StageModel implements StageLifeCycle<String> {
     var stage: Stage;
     var timelineStage:TimelineStage;
 
+    var life = 5;
+
     public function new() {
     }
 
@@ -26,15 +28,17 @@ class StageModel implements StageLifeCycle<String> {
     ) {
         this.stage = stage;
         this.timelineStage = new TimelineStage(stage.timelineEvent);
-        stageStepCore = new StageStepCore<String>(collisions, size, getStageEndConditionResult, this);
+        stageStepCore = new StageStepCore<String>(collisions, size, this);
         collisions.setObserver(onCreateListener, onDestoryListener);
         addNewPlayer();
     }
 
     function addNewPlayer() {
-        var player = new Player(collisions, new Position(WorldStatus.WIDTH / 2, 240));
+        if(life <= 0) return;
+        var player = new Player(collisions);
         collisions.players.push(player);
         player.registerDead(addNewPlayer);
+        life--;
     }
 
     static public function createStage1Model(
@@ -47,7 +51,7 @@ class StageModel implements StageLifeCycle<String> {
         return result;
     }
 
-    function getStageEndConditionResult() {
+    public function getStageEndCondisionResult():StageEndConditionResult<String> {
         if(stage.bossDead) {
             return new StageEndConditionResult(true, "bossdead");
         }
