@@ -1,4 +1,5 @@
 package model.domain;
+import model.core.Terminatable;
 import model.core.StageLifeCycle;
 import model.core.StageEndConditionResult;
 import model.core.Position;
@@ -7,7 +8,7 @@ import model.core.Collision;
 import model.core.StageStepCore;
 
 @:expose
-class StageModel implements StageLifeCycle<String> {
+class StageModel implements StageLifeCycle<String> implements Terminatable {
     static public function main() {}
 
     public var stageStepCore:StageStepCore<String>;
@@ -55,6 +56,8 @@ class StageModel implements StageLifeCycle<String> {
     public function getStageEndCondisionResult():StageEndConditionResult<String> {
         if(stage.bossDead) {
             return new StageEndConditionResult(true, "bossdead");
+        }else if(life < 1) {
+            return new StageEndConditionResult(true, "playerdead");
         }
         return new StageEndConditionResult(false);
     }
@@ -71,6 +74,14 @@ class StageModel implements StageLifeCycle<String> {
     public function onEnd(couse:String):Void {
         trace(couse);
         if(callback.onEndStage != null)callback.onEndStage(couse);
+    }
+
+    public function terminate():Void {
+        stageStepCore.terminate();
+//        stageStepCore = null;
+        collisions = null;
+        callback = null;
+        stage = null;
     }
 
 }

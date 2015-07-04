@@ -550,6 +550,7 @@ model_core_StageLifeCycle.prototype = {
 	__class__: model_core_StageLifeCycle
 };
 var model_core_StageStepCore = function(eachCollision,size,stageLifeCycle) {
+	this.isTerminated = false;
 	this.isCalledOnEnd = false;
 	this.isFirstStep = true;
 	this.eachCollision = eachCollision;
@@ -561,6 +562,7 @@ model_core_StageStepCore.__interfaces__ = [model_core_Terminatable,model_core_St
 model_core_StageStepCore.prototype = {
 	step: function() {
 		var _g = this;
+		if(this.isTerminated) return;
 		if(this.isFirstStep) {
 			this.stageLifeCycle.onStart();
 			this.isFirstStep = false;
@@ -601,6 +603,9 @@ model_core_StageStepCore.prototype = {
 		this.eachCollision.eachCollision(function(c) {
 			c.terminate();
 		});
+		this.eachCollision = null;
+		this.stageLifeCycle = null;
+		this.isTerminated = true;
 	}
 	,__class__: model_core_StageStepCore
 };
@@ -940,7 +945,7 @@ var model_domain_StageModel = $hx_exports.model.domain.StageModel = function() {
 	this.collisions = new model_domain_SimpleCollisions();
 };
 model_domain_StageModel.__name__ = ["model","domain","StageModel"];
-model_domain_StageModel.__interfaces__ = [model_core_StageLifeCycle];
+model_domain_StageModel.__interfaces__ = [model_core_Terminatable,model_core_StageLifeCycle];
 model_domain_StageModel.main = function() {
 };
 model_domain_StageModel.createStage1Model = function(size,callback) {
@@ -966,7 +971,7 @@ model_domain_StageModel.prototype = {
 		this.life--;
 	}
 	,getStageEndCondisionResult: function() {
-		if(this.stage.bossDead) return new model_core_StageEndConditionResult(true,"bossdead");
+		if(this.stage.bossDead) return new model_core_StageEndConditionResult(true,"bossdead"); else if(this.life < 1) return new model_core_StageEndConditionResult(true,"playerdead");
 		return new model_core_StageEndConditionResult(false);
 	}
 	,onStart: function() {
@@ -978,6 +983,12 @@ model_domain_StageModel.prototype = {
 	,onEnd: function(couse) {
 		console.log(couse);
 		if(this.callback.onEndStage != null) this.callback.onEndStage(couse);
+	}
+	,terminate: function() {
+		this.stageStepCore.terminate();
+		this.collisions = null;
+		this.callback = null;
+		this.stage = null;
 	}
 	,__class__: model_domain_StageModel
 };

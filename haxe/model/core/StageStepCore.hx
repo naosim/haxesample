@@ -13,8 +13,11 @@ class StageStepCore<T> implements Step implements Terminatable {
 
     var isFirstStep = true;
     var isCalledOnEnd = false;
+    var isTerminated = false;
 
     public function step() {
+        if(isTerminated) return;
+
         if (isFirstStep) {
             stageLifeCycle.onStart();
             isFirstStep = false;
@@ -58,5 +61,8 @@ class StageStepCore<T> implements Step implements Terminatable {
 
     public function terminate():Void {
         eachCollision.eachCollision(function(c:Collision) { c.terminate(); });
+        eachCollision = null;
+        stageLifeCycle = null;
+        isTerminated = true;
     }
 }

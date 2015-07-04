@@ -1,23 +1,15 @@
+enchant(); // initialize
+
+var image = {};
 var imagePath = function (name) {
     return "js/enchant.js-builds-0.8.2-b/images/" + name + ".png";
 };
 var addImage = function (name) {
     image[name] = imagePath(name);
 };
-var image = {};
-addImage("chara1");
-addImage("icon0");
-addImage("effect0");
-
-enchant(); // initialize
-var game = new Core(320, 320); // game stage
-game.preload(image.chara1, image.icon0, image.effect0); // preload image
-game.fps = 30;
-
-// スペースキーをaボタンにバインド
-game.keybind(' '.charCodeAt(0), 'a');
-
-var player = null;
+var addImages = function (names) {
+    for(var i = 0; i < names.length; i++) addImage(names[i]);
+};
 
 Sprite.prototype.setCenter = function (pos) {
     this.x = Math.floor(pos.x - this.width / 2);
@@ -94,14 +86,15 @@ var showExplosion = function (pos) {
     result.setCenter(pos);
     var frame = 0;
     result.addEventListener('enterframe', function () {
-        if (frame == 4) game.rootScene.removeChild(result);
+        if (frame == 4) game.currentScene.removeChild(result);
         frame++;
     });
-    game.rootScene.addChild(result);
+    game.currentScene.addChild(result);
     return result;
-}
+};
 
-game.onload = function () {
+var createStage1Scene = function() {
+    var scene = new Scene();
     var stageModel = model.domain.StageModel.createStage1Model(
         {width: 320, height: 320},
         {
@@ -127,26 +120,44 @@ game.onload = function () {
 
                 if (sprite) {
                   c.sprite = sprite;
-                  game.rootScene.addChild(sprite);
+                  scene.addChild(sprite);
                 }
 
                                       },
             onDestroyCollision: function (c) {// 死んだとき
-                game.rootScene.removeChild(c.sprite);
+                scene.removeChild(c.sprite);
                 if (c.hasTag('shot') || c.hasTag('enemyshot')) showExplosion(c.pos);
                 console.log("delete");
                 c.sprite = null;
+            },
+            onEndStage: function(c) {
+                stageModel.terminate();
             }
-        });
+        }
+    );
 
+    scene.stageModel  = stageModel;
+    scene.addEventListener('enterframe', function () {
+            stageModel.stageStepCore.step();
+        });
+    return scene;
+};
+addImages(["chara1", "icon0", "effect0"]);
+
+var game = new Core(320, 320); // game stage
+game.preload(image.chara1, image.icon0, image.effect0); // preload image
+game.fps = 30;
+
+// スペースキーをaボタンにバインド
+game.keybind(' '.charCodeAt(0), 'a');
+var player = null;
+game.onload = function () {
+    var scene = createStage1Scene();
+    game.pushScene(scene);
     game.addEventListener('abuttondown', function () {
         // 「a」ボタンを押した時のイベント処理
         console.log("a");
         player.playerCollision.shot();
-    });
-
-    game.rootScene.addEventListener('enterframe', function () {
-        stageModel.stageStepCore.step();
     });
 };
 
