@@ -44,7 +44,7 @@ class Stage implements Step {
         return function():Void {
             var result:Array<Collision> = [];
             for (i in 0...5) {
-                result.push(new DashToPlayerEnemy(collisions, new Position(orgx, -20 * i - 8), new Tag(TagName.enemy), {}));
+                result.push(new DashToPlayerEnemy(collisions, new Position(orgx, -20 * i - 8), new Tag([TagName.enemy, TagName.zako]), {}));
             }
             push(result);
         }

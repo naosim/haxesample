@@ -10,6 +10,7 @@ class TagName {
 
     public static var doubleshot = Std.string(ItemType.doubleshot);
     public static var lifeup = Std.string(ItemType.lifeup);
+    public static var zako = "zako";
     public static var boss = "boss";
     public static var bosschild = "bosschild";
 }

@@ -14,7 +14,7 @@ class StraightAndShotEnemy extends SteppablePositionCollision {
         var x = orgPosition.x < WorldStatus.WIDTH / 2 ? 1 : -1;// 左右のどっちに進むか
         var direction = new Position(x, 0.5).multipl(speed);
         var movePos = SteppablePosition.linear(orgPosition, direction);
-        super(CollisionParams.circle({r: 8, hp: 1, ap: 10, tagNames: [TagName.enemy, Type.getClassName(Type.getClass(this))]}), movePos);
+        super(CollisionParams.circle({r: 8, hp: 1, ap: 10, tagNames: [TagName.enemy, TagName.zako]}), movePos);
         this.collisions = collisions;
     }
 

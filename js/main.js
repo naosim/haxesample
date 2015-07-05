@@ -11,7 +11,7 @@ function $extend(from, fields) {
 	return proto;
 }
 var HxOverrides = function() { };
-HxOverrides.__name__ = ["HxOverrides"];
+HxOverrides.__name__ = true;
 HxOverrides.indexOf = function(a,obj,i) {
 	var len = a.length;
 	if(i < 0) {
@@ -37,25 +37,18 @@ HxOverrides.iter = function(a) {
 		return this.arr[this.cur++];
 	}};
 };
-Math.__name__ = ["Math"];
+Math.__name__ = true;
 var Std = function() { };
-Std.__name__ = ["Std"];
+Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
-var Type = function() { };
-Type.__name__ = ["Type"];
-Type.getClassName = function(c) {
-	var a = c.__name__;
-	if(a == null) return null;
-	return a.join(".");
-};
 var haxe_IMap = function() { };
-haxe_IMap.__name__ = ["haxe","IMap"];
+haxe_IMap.__name__ = true;
 var haxe_ds_StringMap = function() {
 	this.h = { };
 };
-haxe_ds_StringMap.__name__ = ["haxe","ds","StringMap"];
+haxe_ds_StringMap.__name__ = true;
 haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
 haxe_ds_StringMap.prototype = {
 	set: function(key,value) {
@@ -81,13 +74,13 @@ var js__$Boot_HaxeError = function(val) {
 	this.message = String(val);
 	if(Error.captureStackTrace) Error.captureStackTrace(this,js__$Boot_HaxeError);
 };
-js__$Boot_HaxeError.__name__ = ["js","_Boot","HaxeError"];
+js__$Boot_HaxeError.__name__ = true;
 js__$Boot_HaxeError.__super__ = Error;
 js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
 	__class__: js__$Boot_HaxeError
 });
 var js_Boot = function() { };
-js_Boot.__name__ = ["js","Boot"];
+js_Boot.__name__ = true;
 js_Boot.getClass = function(o) {
 	if((o instanceof Array) && o.__enum__ == null) return Array; else {
 		var cl = o.__class__;
@@ -224,17 +217,17 @@ js_Boot.__resolveNativeClass = function(name) {
 	return (Function("return typeof " + name + " != \"undefined\" ? " + name + " : null"))();
 };
 var model_core_CollisionLifeCycle = function() { };
-model_core_CollisionLifeCycle.__name__ = ["model","core","CollisionLifeCycle"];
+model_core_CollisionLifeCycle.__name__ = true;
 model_core_CollisionLifeCycle.prototype = {
 	__class__: model_core_CollisionLifeCycle
 };
 var model_core_Terminatable = function() { };
-model_core_Terminatable.__name__ = ["model","core","Terminatable"];
+model_core_Terminatable.__name__ = true;
 model_core_Terminatable.prototype = {
 	__class__: model_core_Terminatable
 };
 var model_core_Step = function() { };
-model_core_Step.__name__ = ["model","core","Step"];
+model_core_Step.__name__ = true;
 model_core_Step.prototype = {
 	__class__: model_core_Step
 };
@@ -259,7 +252,7 @@ var model_core_Collision = function(params,pos) {
 	});
 	this.registerDead($bind(this,this.onDead));
 };
-model_core_Collision.__name__ = ["model","core","Collision"];
+model_core_Collision.__name__ = true;
 model_core_Collision.__interfaces__ = [model_core_CollisionLifeCycle,model_core_Terminatable,model_core_Step];
 model_core_Collision.prototype = {
 	eachAttacked: function(other) {
@@ -312,7 +305,7 @@ var model_core_CollisionHitTest = function(left,right) {
 	this.left = left;
 	this.right = right;
 };
-model_core_CollisionHitTest.__name__ = ["model","core","CollisionHitTest"];
+model_core_CollisionHitTest.__name__ = true;
 model_core_CollisionHitTest.hitTest = function(left,right) {
 	if(js_Boot.__instanceof(left.shape,model_core_shape_Circle) && js_Boot.__instanceof(right.shape,model_core_shape_Circle)) return left.pos.distanceTo(right.pos) < (js_Boot.__cast(left.shape , model_core_shape_Circle)).radius + (js_Boot.__cast(right.shape , model_core_shape_Circle)).radius;
 	return false;
@@ -324,7 +317,7 @@ var model_core_CollisionIdentifier = function(tag) {
 	this.id = model_core_CollisionIdentifier.createId();
 	if(tag != null) this.tag = tag; else this.tag = new model_core_Tag();
 };
-model_core_CollisionIdentifier.__name__ = ["model","core","CollisionIdentifier"];
+model_core_CollisionIdentifier.__name__ = true;
 model_core_CollisionIdentifier.createId = function() {
 	model_core_CollisionIdentifier.idCount++;
 	return "" + model_core_CollisionIdentifier.idCount;
@@ -343,7 +336,7 @@ var model_core_CollisionParams = function(shape,status,identifier) {
 	this.status = status;
 	this.identifier = identifier;
 };
-model_core_CollisionParams.__name__ = ["model","core","CollisionParams"];
+model_core_CollisionParams.__name__ = true;
 model_core_CollisionParams.circle = function(params) {
 	var c = new model_core_shape_Circle(params.r);
 	var status = new model_core_CollisionStatus(new model_core_HitPoint(params.hp),params.ap);
@@ -365,7 +358,7 @@ var model_core_CollisionStatus = function(hitPoint,attackPoint) {
 		if(after <= 0) _g.isDeadObservable.setValue(true);
 	});
 };
-model_core_CollisionStatus.__name__ = ["model","core","CollisionStatus"];
+model_core_CollisionStatus.__name__ = true;
 model_core_CollisionStatus.__interfaces__ = [model_core_Terminatable];
 model_core_CollisionStatus.prototype = {
 	getAttackPoint: function() {
@@ -404,7 +397,7 @@ model_core_CollisionStatus.prototype = {
 	,__class__: model_core_CollisionStatus
 };
 var model_core_EachHitCollision = function() { };
-model_core_EachHitCollision.__name__ = ["model","core","EachHitCollision"];
+model_core_EachHitCollision.__name__ = true;
 model_core_EachHitCollision.prototype = {
 	__class__: model_core_EachHitCollision
 };
@@ -412,7 +405,7 @@ var model_core_GravityPositionStep = function(speed,gravity) {
 	this.speed = speed;
 	this.gravity = gravity;
 };
-model_core_GravityPositionStep.__name__ = ["model","core","GravityPositionStep"];
+model_core_GravityPositionStep.__name__ = true;
 model_core_GravityPositionStep.create = function(speed,gravity,gravityDirection) {
 	if(gravity == null) {
 		if(gravityDirection == null) gravityDirection = model_core_GravityPositionStep.DOWN;
@@ -436,7 +429,7 @@ var model_core_lib_ObservableValue = function(value) {
 	this.listener = [];
 	this.value = value;
 };
-model_core_lib_ObservableValue.__name__ = ["model","core","lib","ObservableValue"];
+model_core_lib_ObservableValue.__name__ = true;
 model_core_lib_ObservableValue.__interfaces__ = [model_core_Terminatable];
 model_core_lib_ObservableValue.prototype = {
 	getValue: function() {
@@ -470,7 +463,7 @@ model_core_lib_ObservableValue.prototype = {
 var model_core_lib_ObservableFloat = function(value) {
 	model_core_lib_ObservableValue.call(this,value);
 };
-model_core_lib_ObservableFloat.__name__ = ["model","core","lib","ObservableFloat"];
+model_core_lib_ObservableFloat.__name__ = true;
 model_core_lib_ObservableFloat.__super__ = model_core_lib_ObservableValue;
 model_core_lib_ObservableFloat.prototype = $extend(model_core_lib_ObservableValue.prototype,{
 	addValue: function(value) {
@@ -486,7 +479,7 @@ var model_core_HitPoint = function(value) {
 	}
 	model_core_lib_ObservableFloat.call(this,value);
 };
-model_core_HitPoint.__name__ = ["model","core","HitPoint"];
+model_core_HitPoint.__name__ = true;
 model_core_HitPoint.__super__ = model_core_lib_ObservableFloat;
 model_core_HitPoint.prototype = $extend(model_core_lib_ObservableFloat.prototype,{
 	isRigid: function() {
@@ -514,7 +507,7 @@ var model_core_Position = function(x,y) {
 	this.x = x;
 	this.y = y;
 };
-model_core_Position.__name__ = ["model","core","Position"];
+model_core_Position.__name__ = true;
 model_core_Position.zero = function() {
 	return new model_core_Position();
 };
@@ -540,12 +533,12 @@ var model_core_StageEndConditionResult = function(result,couse) {
 	this.result = result;
 	this.couse = couse;
 };
-model_core_StageEndConditionResult.__name__ = ["model","core","StageEndConditionResult"];
+model_core_StageEndConditionResult.__name__ = true;
 model_core_StageEndConditionResult.prototype = {
 	__class__: model_core_StageEndConditionResult
 };
 var model_core_StageLifeCycle = function() { };
-model_core_StageLifeCycle.__name__ = ["model","core","StageLifeCycle"];
+model_core_StageLifeCycle.__name__ = true;
 model_core_StageLifeCycle.prototype = {
 	__class__: model_core_StageLifeCycle
 };
@@ -557,7 +550,7 @@ var model_core_StageStepCore = function(eachCollision,size,stageLifeCycle) {
 	this.size = size;
 	this.stageLifeCycle = stageLifeCycle;
 };
-model_core_StageStepCore.__name__ = ["model","core","StageStepCore"];
+model_core_StageStepCore.__name__ = true;
 model_core_StageStepCore.__interfaces__ = [model_core_Terminatable,model_core_Step];
 model_core_StageStepCore.prototype = {
 	step: function() {
@@ -613,7 +606,7 @@ var model_core_SteppablePosition = function(x,y,step) {
 	model_core_Position.call(this,x,y);
 	this._step = step;
 };
-model_core_SteppablePosition.__name__ = ["model","core","SteppablePosition"];
+model_core_SteppablePosition.__name__ = true;
 model_core_SteppablePosition.__interfaces__ = [model_core_Step];
 model_core_SteppablePosition.linear = function(defaultPosition,diff) {
 	return new model_core_SteppablePosition(defaultPosition.x,defaultPosition.y,function(pos) {
@@ -632,7 +625,7 @@ var model_core_SteppablePositionCollision = function(params,pos) {
 	model_core_Collision.call(this,params,pos);
 	this.movablePos = pos;
 };
-model_core_SteppablePositionCollision.__name__ = ["model","core","SteppablePositionCollision"];
+model_core_SteppablePositionCollision.__name__ = true;
 model_core_SteppablePositionCollision.__super__ = model_core_Collision;
 model_core_SteppablePositionCollision.prototype = $extend(model_core_Collision.prototype,{
 	onStep: function() {
@@ -657,7 +650,7 @@ var model_core_Tag = function(tag,tags) {
 		}
 	}
 };
-model_core_Tag.__name__ = ["model","core","Tag"];
+model_core_Tag.__name__ = true;
 model_core_Tag.prototype = {
 	has: function(tag) {
 		return this.tags.exists(tag);
@@ -668,7 +661,7 @@ var model_core_TimelineEvent = function(eventFrameFromLastEvent,eventTask) {
 	this.eventFrameFromLastEvent = eventFrameFromLastEvent;
 	this.eventTask = eventTask;
 };
-model_core_TimelineEvent.__name__ = ["model","core","TimelineEvent"];
+model_core_TimelineEvent.__name__ = true;
 model_core_TimelineEvent.prototype = {
 	__class__: model_core_TimelineEvent
 };
@@ -677,7 +670,7 @@ var model_core_TimelineStage = function(timeline) {
 	this.timeline = timeline;
 	this.nextEvent = timeline.shift();
 };
-model_core_TimelineStage.__name__ = ["model","core","TimelineStage"];
+model_core_TimelineStage.__name__ = true;
 model_core_TimelineStage.__interfaces__ = [model_core_Step];
 model_core_TimelineStage.prototype = {
 	step: function() {
@@ -693,7 +686,7 @@ model_core_TimelineStage.prototype = {
 var model_core_lib_ArrayObserver = function(ary) {
 	this.ary = ary;
 };
-model_core_lib_ArrayObserver.__name__ = ["model","core","lib","ArrayObserver"];
+model_core_lib_ArrayObserver.__name__ = true;
 model_core_lib_ArrayObserver.prototype = {
 	setObserver: function(onCreateListener,onDestoryListener) {
 		this.onCreateListener = onCreateListener;
@@ -733,11 +726,11 @@ model_core_lib_ArrayObserver.prototype = {
 	,__class__: model_core_lib_ArrayObserver
 };
 var model_core_shape_Shape = function() { };
-model_core_shape_Shape.__name__ = ["model","core","shape","Shape"];
+model_core_shape_Shape.__name__ = true;
 var model_core_shape_Circle = $hx_exports.model.core.shape.Circle = function(r) {
 	this.radius = r;
 };
-model_core_shape_Circle.__name__ = ["model","core","shape","Circle"];
+model_core_shape_Circle.__name__ = true;
 model_core_shape_Circle.__interfaces__ = [model_core_shape_Shape];
 model_core_shape_Circle.prototype = {
 	get_pos: function() {
@@ -757,7 +750,7 @@ var model_domain_Player = $hx_exports.model.domain.Player = function(collisions)
 	});
 	this.setIsAir(true);
 };
-model_domain_Player.__name__ = ["model","domain","Player"];
+model_domain_Player.__name__ = true;
 model_domain_Player.__super__ = model_core_Collision;
 model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	up: function() {
@@ -808,7 +801,7 @@ var model_domain_SimpleCollisions = function() {
 	this.players = model_domain_SimpleCollisions.collisionArray();
 	this.all = [this.players,this.items,this.shots,this.enemies,this.enemyShots];
 };
-model_domain_SimpleCollisions.__name__ = ["model","domain","SimpleCollisions"];
+model_domain_SimpleCollisions.__name__ = true;
 model_domain_SimpleCollisions.__interfaces__ = [model_core_EachHitCollision];
 model_domain_SimpleCollisions.collisionArray = function() {
 	return new model_core_lib_ArrayObserver([]);
@@ -873,14 +866,14 @@ model_domain_SimpleCollisions.prototype = {
 	}
 	,__class__: model_domain_SimpleCollisions
 };
-var model_domain_WorldStatus = function() { };
-model_domain_WorldStatus.__name__ = ["model","domain","WorldStatus"];
+var model_domain_WorldStatus = $hx_exports.model.domain.WorldStatus = function() { };
+model_domain_WorldStatus.__name__ = true;
 var model_domain_Stage = function(collisions) {
 	this.bossDead = false;
 	this.timelineEvent = [new model_core_TimelineEvent(3 * model_domain_Stage.FPS,this.straighatAndShot(model_domain_WorldStatus.WIDTH)),new model_core_TimelineEvent(3 * model_domain_Stage.FPS,$bind(this,this.boss))];
 	this.collisions = collisions;
 };
-model_domain_Stage.__name__ = ["model","domain","Stage"];
+model_domain_Stage.__name__ = true;
 model_domain_Stage.__interfaces__ = [model_core_Step];
 model_domain_Stage.prototype = {
 	step: function() {
@@ -900,7 +893,7 @@ model_domain_Stage.prototype = {
 			var _g = 0;
 			while(_g < 5) {
 				var i = _g++;
-				result.push(new model_domain_enemy_DashToPlayerEnemy(_g1.collisions,new model_core_Position(orgx,-20 * i - 8),new model_core_Tag(model_domain_TagName.enemy),{ }));
+				result.push(new model_domain_enemy_DashToPlayerEnemy(_g1.collisions,new model_core_Position(orgx,-20 * i - 8),new model_core_Tag(null,[model_domain_TagName.enemy,model_domain_TagName.zako]),{ }));
 			}
 			_g1.push(result);
 		};
@@ -944,7 +937,7 @@ var model_domain_StageModel = $hx_exports.model.domain.StageModel = function() {
 	this.life = 5;
 	this.collisions = new model_domain_SimpleCollisions();
 };
-model_domain_StageModel.__name__ = ["model","domain","StageModel"];
+model_domain_StageModel.__name__ = true;
 model_domain_StageModel.__interfaces__ = [model_core_Terminatable,model_core_StageLifeCycle];
 model_domain_StageModel.main = function() {
 };
@@ -1000,7 +993,7 @@ model_domain_item_ItemType.lifeup = ["lifeup",1];
 model_domain_item_ItemType.lifeup.toString = $estr;
 model_domain_item_ItemType.lifeup.__enum__ = model_domain_item_ItemType;
 var model_domain_TagName = $hx_exports.model.domain.TagName = function() { };
-model_domain_TagName.__name__ = ["model","domain","TagName"];
+model_domain_TagName.__name__ = true;
 var model_domain_enemy_DashToPlayerEnemy = function(collisions,orgPosition,tag,options) {
 	var speed;
 	if(options.speed != null) speed = options.speed; else speed = 3;
@@ -1014,7 +1007,7 @@ var model_domain_enemy_DashToPlayerEnemy = function(collisions,orgPosition,tag,o
 		model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : radius, hp : 1, ap : ap, tag : tag}),movePos);
 	}
 };
-model_domain_enemy_DashToPlayerEnemy.__name__ = ["model","domain","enemy","DashToPlayerEnemy"];
+model_domain_enemy_DashToPlayerEnemy.__name__ = true;
 model_domain_enemy_DashToPlayerEnemy.__super__ = model_core_SteppablePositionCollision;
 model_domain_enemy_DashToPlayerEnemy.prototype = $extend(model_core_SteppablePositionCollision.prototype,{
 	__class__: model_domain_enemy_DashToPlayerEnemy
@@ -1027,7 +1020,7 @@ var model_domain_enemy_FirstStageBoss = function(collisions) {
 	model_core_Collision.call(this,model_core_CollisionParams.circle({ r : 8, hp : 300, ap : 10, tagNames : [model_domain_TagName.enemy,model_domain_TagName.boss]}),new model_core_Position(40,40));
 	this.collisions = collisions;
 };
-model_domain_enemy_FirstStageBoss.__name__ = ["model","domain","enemy","FirstStageBoss"];
+model_domain_enemy_FirstStageBoss.__name__ = true;
 model_domain_enemy_FirstStageBoss.__super__ = model_core_Collision;
 model_domain_enemy_FirstStageBoss.prototype = $extend(model_core_Collision.prototype,{
 	onCreate: function() {
@@ -1085,10 +1078,10 @@ var model_domain_enemy_StraightAndShotEnemy = function(collisions,orgPosition,sp
 	if(orgPosition.x < model_domain_WorldStatus.WIDTH / 2) x = 1; else x = -1;
 	var direction = new model_core_Position(x,0.5).multipl(speed);
 	var movePos = model_core_SteppablePosition.linear(orgPosition,direction);
-	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 10, tagNames : [model_domain_TagName.enemy,Type.getClassName(js_Boot.getClass(this))]}),movePos);
+	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : 8, hp : 1, ap : 10, tagNames : [model_domain_TagName.enemy,model_domain_TagName.zako]}),movePos);
 	this.collisions = collisions;
 };
-model_domain_enemy_StraightAndShotEnemy.__name__ = ["model","domain","enemy","StraightAndShotEnemy"];
+model_domain_enemy_StraightAndShotEnemy.__name__ = true;
 model_domain_enemy_StraightAndShotEnemy.__super__ = model_core_SteppablePositionCollision;
 model_domain_enemy_StraightAndShotEnemy.prototype = $extend(model_core_SteppablePositionCollision.prototype,{
 	onStep: function() {
@@ -1101,7 +1094,7 @@ model_domain_enemy_StraightAndShotEnemy.prototype = $extend(model_core_Steppable
 var model_domain_item_ItemFactory = function(collisions) {
 	this.collisions = collisions;
 };
-model_domain_item_ItemFactory.__name__ = ["model","domain","item","ItemFactory"];
+model_domain_item_ItemFactory.__name__ = true;
 model_domain_item_ItemFactory.prototype = {
 	create: function(orgPos,itemType) {
 		var apply;
@@ -1138,7 +1131,7 @@ var model_domain_shot_WeekShot = function(playerPos) {
 	var shotPos = model_core_SteppablePosition.linear(playerPos,new model_core_Position(0,-model_domain_shot_WeekShot.SPEED));
 	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : model_domain_shot_WeekShot.RADIUS, hp : model_domain_shot_WeekShot.HP, ap : model_domain_shot_WeekShot.AP, tagName : model_domain_TagName.shot}),shotPos);
 };
-model_domain_shot_WeekShot.__name__ = ["model","domain","shot","WeekShot"];
+model_domain_shot_WeekShot.__name__ = true;
 model_domain_shot_WeekShot.create = function(collisions,playerPos) {
 	if(collisions.shots.length() >= 10) return null;
 	return [new model_domain_shot_WeekShot(playerPos)];
@@ -1164,8 +1157,8 @@ if(Array.prototype.indexOf) HxOverrides.indexOf = function(a,o,i) {
 	return Array.prototype.indexOf.call(a,o,i);
 };
 String.prototype.__class__ = String;
-String.__name__ = ["String"];
-Array.__name__ = ["Array"];
+String.__name__ = true;
+Array.__name__ = true;
 var Int = { __name__ : ["Int"]};
 var Dynamic = { __name__ : ["Dynamic"]};
 var Float = Number;
@@ -1193,6 +1186,7 @@ model_domain_TagName.enemy = "enemy";
 model_domain_TagName.enemyshot = "enemyshot";
 model_domain_TagName.doubleshot = Std.string(model_domain_item_ItemType.doubleshot);
 model_domain_TagName.lifeup = Std.string(model_domain_item_ItemType.lifeup);
+model_domain_TagName.zako = "zako";
 model_domain_TagName.boss = "boss";
 model_domain_TagName.bosschild = "bosschild";
 model_domain_enemy_FirstStageBoss.SPEED = 3;
