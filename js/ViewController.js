@@ -1,14 +1,14 @@
 var tagSpriteMap = {
-    shot:           [48, image.icon0],
+    shot:           [48 + 6, image.icon0],
     enemy: {
         zako:       [16, image.icon0],
         bosschild:  [16, image.icon0],
-        boss:       [11, image.icon0],
+        boss:       [11, image.icon0]
     },
     enemyshot:      [45, image.icon0],
     item: {
         doubleshot: [30, image.icon0],
-        lifeup:     [14, image.icon0],
+        lifeup:     [14, image.icon0]
     }
 };
 

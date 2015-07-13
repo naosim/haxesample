@@ -771,7 +771,7 @@ model_domain_Player.prototype = $extend(model_core_Collision.prototype,{
 	}
 	,shot: function() {
 		if(this.controlLocked) return;
-		var shots = this.createShots(this.collisions,new model_core_Position(this.pos.x,this.pos.y - 8));
+		var shots = this.createShots(this.collisions,new model_core_Position(this.pos.x + 8,this.pos.y));
 		if(shots != null) this.collisions.shots.pushAll(shots);
 	}
 	,lifeUp: function(value) {
@@ -1128,7 +1128,7 @@ model_domain_item_ItemFactory.prototype = {
 	,__class__: model_domain_item_ItemFactory
 };
 var model_domain_shot_WeekShot = function(playerPos) {
-	var shotPos = model_core_SteppablePosition.linear(playerPos,new model_core_Position(0,-model_domain_shot_WeekShot.SPEED));
+	var shotPos = model_core_SteppablePosition.linear(playerPos,new model_core_Position(model_domain_shot_WeekShot.SPEED,0));
 	model_core_SteppablePositionCollision.call(this,model_core_CollisionParams.circle({ r : model_domain_shot_WeekShot.RADIUS, hp : model_domain_shot_WeekShot.HP, ap : model_domain_shot_WeekShot.AP, tagName : model_domain_TagName.shot}),shotPos);
 };
 model_domain_shot_WeekShot.__name__ = true;

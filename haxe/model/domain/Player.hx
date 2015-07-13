@@ -48,7 +48,7 @@ class Player extends Collision {
 
     public function shot() {
         if(controlLocked) return;
-        var shots = createShots(collisions, new Position(this.pos.x, this.pos.y - 8));
+        var shots = createShots(collisions, new Position(this.pos.x + 8, this.pos.y));
         if (shots != null) collisions.shots.pushAll(shots);
     }
 

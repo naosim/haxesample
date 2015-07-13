@@ -13,7 +13,7 @@ class WeekShot extends SteppablePositionCollision {
     private static var AP = 10;
 
     public function new(playerPos:Position) {
-        var shotPos = SteppablePosition.linear(playerPos, new Position(0, -SPEED));
+        var shotPos = SteppablePosition.linear(playerPos, new Position(SPEED, 0));
         super(CollisionParams.circle({r: RADIUS, hp: HP, ap: AP, tagName: TagName.shot}), shotPos);
     }
 
