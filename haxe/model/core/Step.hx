@@ -1,5 +1,5 @@
 package model.core;
 
 interface Step {
-  public function step(): Void;
+    public function step():Void;
 }
