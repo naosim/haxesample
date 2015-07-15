@@ -4,8 +4,15 @@ class StageStepCore<T> implements Step implements Terminatable {
     var eachCollision:EachHitCollision;
     var size:{width:Float, height:Float};
     var stageLifeCycle:StageLifeCycle<T>;
+    var getDisplayRect:Void -> Rect;
 
-    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, stageLifeCycle:StageLifeCycle<T>) {
+    public function new(eachCollision:EachHitCollision, size:{width:Float, height:Float}, stageLifeCycle:StageLifeCycle<T>, ?getDisplayRect: Void -> Rect) {
+        function hige (){};
+        if(getDisplayRect != null) {
+            this.getDisplayRect = getDisplayRect;
+        } else {
+            this.getDisplayRect = function () {return Rect.create(size.width/2, size.height/2, size.width, size.height); };
+        }
         this.eachCollision = eachCollision;
         this.size = size;
         this.stageLifeCycle = stageLifeCycle;
@@ -54,8 +61,9 @@ class StageStepCore<T> implements Step implements Terminatable {
     }
 
     private function isOutOfWorld(c:Collision):Bool {
-        if (c.pos.x < -size.width || c.pos.x > size.width * 2) return true;
-        if (c.pos.y < -size.height || c.pos.y > size.height * 2) return true;
+        var rect = getDisplayRect();
+        if(c.pos.x < rect.centerPos.x - rect.size.width  || c.pos.x > rect.centerPos.x + rect.size.width)  return true;
+        if(c.pos.y < rect.centerPos.y - rect.size.height || c.pos.y > rect.centerPos.y + rect.size.height) return true;
         return false;
     }
 

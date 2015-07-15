@@ -4,7 +4,10 @@ import model.core.CollisionIdentifier;
 import model.core.shape.Shape;
 
 class Collision implements Step implements Terminatable implements CollisionLifeCycle {
-    public var pos(default, null):Position;// 画面に対する相対位置
+    public var pos(get, null):Position;
+    public function get_pos(): Position {
+        return pos;
+    }
     public var shape(default, null):Shape;
     public var status:CollisionStatus;
     public var identifier:CollisionIdentifier;

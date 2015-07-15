@@ -1,4 +1,7 @@
 package model.domain;
+import model.core.Size;
+import model.core.Rect;
+import model.core.MapStage;
 import model.core.Terminatable;
 import model.core.StageLifeCycle;
 import model.core.StageEndConditionResult;
@@ -14,7 +17,7 @@ class StageModel implements StageLifeCycle<String> implements Terminatable {
     public var stageStepCore:StageStepCore<String>;
     public var collisions:SimpleCollisions = new SimpleCollisions();
     var stage: Stage;
-    var timelineStage:TimelineStage;
+    var mapStage:MapStage;
     var callback: StageModelCallback;
 
     var life = 5;
@@ -29,8 +32,8 @@ class StageModel implements StageLifeCycle<String> implements Terminatable {
     ) {
         this.stage = stage;
         this.callback = callback;
-        this.timelineStage = new TimelineStage(stage.timelineEvent);
-        stageStepCore = new StageStepCore<String>(collisions, size, this);
+        this.mapStage = new MapStage(Rect.create(WorldStatus.WIDTH/2, WorldStatus.HEIGHT/2, WorldStatus.WIDTH * 10, WorldStatus.HEIGHT * 10), new Size(WorldStatus.WIDTH, WorldStatus.HEIGHT), []);
+        stageStepCore = new StageStepCore<String>(collisions, size, this, this.mapStage.getDisplayRect);
         collisions.setObserver(callback.onCreateCollision, callback.onDestroyCollision);
         addNewPlayer();
     }
@@ -68,7 +71,7 @@ class StageModel implements StageLifeCycle<String> implements Terminatable {
     }
 
     public function onStep():Void {
-        timelineStage.step();
+        mapStage.step();
     }
 
     public function onEnd(couse:String):Void {
